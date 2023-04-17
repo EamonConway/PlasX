@@ -59,7 +59,7 @@ bool PFalc::updateInfection(const double t) {
 
 static inline bool determine_event(double lambda, double dt) {
   // Determine if someone is infected.
-  auto r = gen_unf(generator);
+  auto r = genunf_std(generator);
   if (exp(-dt * lambda) < r) {
     return true;  // You were infected.
   }
@@ -100,7 +100,7 @@ static void SAU_infection(PFalc& state, const Parameters& params,
   // How should we handle the fact that if you are in D, you stay in D.
   // if(infection){ just stay at d}
 
-  const auto r1 = gen_unf(generator), r2 = gen_unf(generator);
+  const auto r1 = genunf_std(generator), r2 = genunf_std(generator);
 
   // Get parameters
   const auto f_T = params.f_T;  // Is this a constant?
@@ -217,7 +217,7 @@ static bool A_update(PFalc& state, const Parameters& params,
     SAU_infection(state, params, t);
   } else if (determine_event(prob_event, dt)) {
     // Hey something is going to happen, but what! Lets find out.
-    const auto r = gen_unf(generator);  // random number
+    const auto r = genunf_std(generator);  // random number
     if (r < r_A / prob_event) {
       // You've recovered instead, move from A to U.
       state.current_ = Status::U;
@@ -250,7 +250,7 @@ static bool U_update(PFalc& state, const Parameters& params,
     SAU_infection(state, params, t);
   } else if (determine_event(prob_event, dt)) {
     // Hey something is going to happen, but what! Lets find out.
-    const auto r = gen_unf(generator);  // random number
+    const auto r = genunf_std(generator);  // random number
     if (r < params.r_U / prob_event) {
       state.current_ = Status::S;
       state.update_ = [&](const double lambda, const double dt) -> bool {
@@ -288,7 +288,7 @@ static bool D_update(PFalc& state, const Parameters& params,
     // They go to D... so its still D update? Do nothing? Will have to check.
   } else if (determine_event(prob_event, dt)) {
     // Hey something is going to happen, but what! Lets find out.
-    const auto r = gen_unf(generator);  // random number
+    const auto r = genunf_std(generator);  // random number
     if (r < params.r_D / prob_event) {
       // You've been here long enough, move from D to A.
       state.current_ = Status::A;
@@ -310,7 +310,7 @@ static bool T_update(PFalc& state, const Parameters& params,
   const auto prob_event = params.r_T + params.mu_d;
   if (determine_event(prob_event, dt)) {
     // Hey something is going to happen, but what! Lets find out.
-    const auto r = gen_unf(generator);  // random number
+    const auto r = genunf_std(generator);  // random number
 
     if (r < params.r_T / prob_event) {
       // You've been here long enough, move from T to P.
@@ -333,7 +333,7 @@ static bool P_update(PFalc& state, const Parameters& params,
   const auto prob_event = params.r_P + params.mu_d;
   if (determine_event(prob_event, dt)) {
     // Hey something is going to happen, but what! Lets find out.
-    const auto r = gen_unf(generator);
+    const auto r = genunf_std(generator);
     if (r < params.r_P / prob_event) {
       // You've been here long enough, move from P to S.
       state.current_ = Status::S;

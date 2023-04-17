@@ -13,7 +13,7 @@
 #include <random>
 
 namespace plasx {
-extern std::uniform_real_distribution<double> gen_unf;
+extern std::uniform_real_distribution<double> genunf_std;
 extern std::default_random_engine generator;
 }  // namespace plasx
 #endif
