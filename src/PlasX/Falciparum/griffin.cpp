@@ -18,10 +18,11 @@ double PFalc::getIC() noexcept { return I_CA_ + I_CM_; }
 
 double PFalc::getIA() noexcept { return I_A_; }
 
-void PFalc::clearInfectionQueue() {
+void PFalc::clearInfectionQueue() noexcept {
   // Replace with an empty queue.
   infection_queue_ =
       std::priority_queue<double, std::vector<double>, std::less<double>>();
+  cached_infection_ = std::numeric_limits<double>::infinity();
 }
 
 void PFalc::scheduleInfection(const double t) {
