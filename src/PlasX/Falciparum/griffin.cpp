@@ -14,9 +14,9 @@ PFalc::PFalc(const Status& status, double ICA, double ICM, double IA)
       I_A_(IA),
       cached_infection_(std::numeric_limits<double>::infinity()){};
 
-double PFalc::getIC() { return I_CA_ + I_CM_; }
+double PFalc::getIC() noexcept { return I_CA_ + I_CM_; }
 
-double PFalc::getIA() { return I_A_; }
+double PFalc::getIA() noexcept { return I_A_; }
 
 void PFalc::clearInfectionQueue() {
   // Replace with an empty queue.
