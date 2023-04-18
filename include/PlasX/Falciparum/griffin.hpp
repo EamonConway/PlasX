@@ -76,6 +76,9 @@ class PFalc {
    */
   double getIA() noexcept;
 
+  double getZeta() noexcept { return zeta_; };
+  double getIB() noexcept { return I_B_; };
+
   /**
    * @brief Update the individual.
    * @details This function updates the state of an individual by a single
@@ -93,6 +96,8 @@ class PFalc {
   double I_CA_;
   double I_CM_;
   double I_A_;
+  double zeta_;
+  double I_B_;
 
   // I am assuming that you only want the force of infection to be lagged, hence
   // we only have to store the time of the next infection.
@@ -104,13 +109,16 @@ class PFalc {
 /**
  * @brief Runs a single step in time for the Griffin model.
  *
+ * @param t
+ * @param dt
  * @param population
  * @param params
- * @return RealType containing the current time.
+ * @param eir
+ * @return RealType
  */
-RealType one_step(std::vector<Individual<PFalc>>& population,
-                  const Parameters& params);
-
+RealType one_step(double t, double dt,
+                  std::vector<Individual<PFalc>>& population,
+                  const Parameters& params, double eir);
 }  // namespace griffin
 }  // namespace falciparum
 }  // namespace plasx

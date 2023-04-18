@@ -5,6 +5,50 @@
 namespace plasx {
 namespace falciparum {
 namespace griffin {
+RealType one_step(double t, double dt,
+                  std::vector<Individual<PFalc>>& population,
+                  const Parameters& params, double eir) {
+  // dt - time step size.
+  // eir - entomological innoculation rate
+  // person - current person that is being updated
+  // params - Parameters required for the simulation.
+
+  // Loop over individuals.
+  std::remove_if(
+      population.begin(), population.end(),
+      [&](Individual<PFalc>& person) -> bool {
+        // Important to remember that all updates to parameters must be done at
+        // end of function and not at begining.
+
+        // Get biting parameters to calculate Lambda
+        auto b_min = params.b_min, b_max = params.b_max, I_B0 = params.I_B0,
+             kappa_B = params.kappa_B;
+
+        // Construct Lambda(t) for each individual.
+        auto b =
+            b_min + (b_max - b_min) /
+                        (1.0 + pow(person.status_.getIB() / I_B0, kappa_B));
+        auto psi = 1.0 - params.rho * std::exp(-person.age_ / params.age_0);
+
+        // It is plausible to add this to the
+        // individual for use when it comes to
+        // calculating the normalization
+        // constant etc in the mosquito model.
+        auto lambda = eir * psi * b *
+                      person.status_.getZeta();  // Force of infection on this
+                                                 // individual at current time.
+
+        // This function returns a boolean to determin if the individual will
+        // die.
+        return person.status_.update_(lambda, t, dt);
+      });
+
+  // Mosquitoes can go here - use the appropriate parameters (currenly not
+  // listed).
+
+  return t + dt;
+}
+
 // Construct the object that will store the information in the Griffin
 // simulation.
 PFalc::PFalc(const Status& status, double ICA, double ICM, double IA)
