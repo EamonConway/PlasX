@@ -84,7 +84,7 @@ class PFalc {
    * @details This function updates the state of an individual by a single
    * timestep.
    */
-  std::function<bool(const double, const double)> update_;
+  std::function<bool(const double, const double, const double)> update_;
 
   /**
    * @brief Current state of the individual.

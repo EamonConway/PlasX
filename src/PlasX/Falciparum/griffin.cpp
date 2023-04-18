@@ -170,13 +170,15 @@ static void SAU_infection(PFalc& state, const Parameters& params,
 
       // Update state of individual.
       state.current_ = Status::T;
-      state.update_ = [&](const double lambda, const double dt) -> bool {
+      state.update_ = [&](const double lambda, const double t,
+                          const double dt) -> bool {
         return T_update(state, params, lambda, t, dt);
       };
     } else {
       // You have an untreated clinical disease
       state.current_ = Status::D;
-      state.update_ = [&](const double lambda, const double dt) -> bool {
+      state.update_ = [&](const double lambda, const double t,
+                          const double dt) -> bool {
         return D_update(state, params, lambda, t, dt);
       };
     }
@@ -184,7 +186,8 @@ static void SAU_infection(PFalc& state, const Parameters& params,
     // You failed to go to the node that checks if you go to T or D, therefore
     // you go to A.
     state.current_ = Status::A;
-    state.update_ = [&](const double lambda, const double dt) -> bool {
+    state.update_ = [&](const double lambda, const double t,
+                        const double dt) -> bool {
       return A_update(state, params, lambda, t, dt);
     };
   }
@@ -266,7 +269,8 @@ static bool A_update(PFalc& state, const Parameters& params,
     if (r < r_A / prob_event) {
       // You've recovered instead, move from A to U.
       state.current_ = Status::U;
-      state.update_ = [&](const double lambda, const double dt) -> bool {
+      state.update_ = [&](const double lambda, const double t,
+                          const double dt) -> bool {
         return U_update(state, params, lambda, t, dt);
       };
     } else {
@@ -298,7 +302,8 @@ static bool U_update(PFalc& state, const Parameters& params,
     const auto r = genunf_std(generator);  // random number
     if (r < params.r_U / prob_event) {
       state.current_ = Status::S;
-      state.update_ = [&](const double lambda, const double dt) -> bool {
+      state.update_ = [&](const double lambda, const double t,
+                          const double dt) -> bool {
         return S_update(state, params, lambda, t, dt);
       };
     } else {
@@ -337,7 +342,7 @@ static bool D_update(PFalc& state, const Parameters& params,
     if (r < params.r_D / prob_event) {
       // You've been here long enough, move from D to A.
       state.current_ = Status::A;
-      state.update_ = [&](double lambda, double dt) -> bool {
+      state.update_ = [&](double lambda, const double t, double dt) -> bool {
         return A_update(state, params, lambda, t, dt);
       };
     } else {
@@ -360,7 +365,8 @@ static bool T_update(PFalc& state, const Parameters& params,
     if (r < params.r_T / prob_event) {
       // You've been here long enough, move from T to P.
       state.current_ = Status::P;
-      state.update_ = [&](const double lambda, const double dt) -> bool {
+      state.update_ = [&](const double lambda, const double t,
+                          const double dt) -> bool {
         return P_update(state, params, lambda, t, dt);
       };
     } else {
@@ -382,7 +388,8 @@ static bool P_update(PFalc& state, const Parameters& params,
     if (r < params.r_P / prob_event) {
       // You've been here long enough, move from P to S.
       state.current_ = Status::S;
-      state.update_ = [&](const double lambda, const double dt) -> bool {
+      state.update_ = [&](const double lambda, const double t,
+                          const double dt) -> bool {
         return S_update(state, params, lambda, t, dt);
       };
     } else {
