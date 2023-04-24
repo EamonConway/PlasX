@@ -119,6 +119,11 @@ class PFalc {
 RealType one_step(double t, double dt,
                   std::vector<Individual<PFalc>>& population,
                   const Parameters& params, double eir);
+
+RealType one_step_switch(const double t, const double dt,
+                         std::vector<Individual<PFalc>>& population,
+                         const Parameters& params, double eir);
+
 }  // namespace griffin
 }  // namespace falciparum
 }  // namespace plasx
