@@ -5,43 +5,212 @@
 namespace plasx {
 namespace falciparum {
 namespace griffin {
-RealType one_step(double t, double dt,
+
+std::ostream& operator<<(std::ostream& os, const Status& state) {
+  switch (state) {
+    case Status::S:
+      os << "S";
+      break;
+    case Status::A:
+      os << "A";
+      break;
+    case Status::U:
+      os << "U";
+      break;
+    case Status::D:
+      os << "D";
+      break;
+    case Status::T:
+      os << "T";
+      break;
+    case Status::P:
+      os << "P";
+      break;
+    default:
+      throw std::logic_error(
+          "Incorrect compartment specified for individual in std::ostream& "
+          "operator<<(std::ostream& os, const pfg::Status& state). ");
+  }
+  return os;
+}
+
+// Forward declare functions that will be used to update the state of
+// individuals.
+static bool S_update(PFalc& state, const Parameters& params,
+                     const double lambda, const double t,
+                     const double dt) noexcept;
+static bool A_update(PFalc& state, const Parameters& params,
+                     const double lambda, const double t,
+                     const double dt) noexcept;
+static bool U_update(PFalc& state, const Parameters& params,
+                     const double lambda, const double t,
+                     const double dt) noexcept;
+static bool D_update(PFalc& state, const Parameters& params,
+                     const double lambda, const double t,
+                     const double dt) noexcept;
+static bool T_update(PFalc& state, const Parameters& params,
+                     const double lambda, const double t,
+                     const double dt) noexcept;
+static bool P_update(PFalc& state, const Parameters& params,
+                     const double lambda, const double t,
+                     const double dt) noexcept;
+
+RealType one_step_no_switch(const double t, const double dt,
+                            std::vector<Individual<PFalc>>& population,
+                            const Parameters& params, double eir,
+                            std::vector<int> S, std::vector<int> A,
+                            std::vector<int> U, std::vector<int> D,
+                            std::vector<int> T, std::vector<int> P) {
+  // Get biting parameters to calculate Lambda
+  auto b_min = params.b_min, b_max = params.b_max, I_B0 = params.I_B0,
+       kappa_B = params.kappa_B, rho = params.rho, age_0 = params.age_0;
+
+  // Loop over individuals
+  // S.
+  auto s_remove_it = std::remove_if(S.begin(), S.end(), [&](int id) -> bool {
+    // Important to remember that all updates to parameters must be done
+    // at end of function and not at begining.
+
+    auto& state = population[id].status_;
+    auto& age = population[id].age_;
+    // Construct Lambda(t) for each individual.
+    auto b =
+        b_min + (b_max - b_min) / (1.0 + pow(state.getIB() / I_B0, kappa_B));
+    auto psi = 1.0 - rho * std::exp(-age / age_0);
+
+    // It is plausible to add this to the individual for use when it
+    // comes to calculating the normalization constant etc in the
+    // mosquito model.
+    auto lambda = eir * psi * b * state.getZeta();
+
+    // This function returns a boolean to determine if the individual
+    // will die.
+    auto isRemoved = S_update(state, params, lambda, t, dt);
+    return isRemoved;
+  });
+
+  // A
+  auto a_remove_it =
+      std::remove_if(S.begin(), S.end(), [](int id) -> bool { return true; });
+
+  // U
+  auto u_remove_it =
+      std::remove_if(S.begin(), S.end(), [](int id) -> bool { return true; });
+
+  // D
+  auto d_remove_it =
+      std::remove_if(S.begin(), S.end(), [](int id) -> bool { return true; });
+
+  // T
+  auto t_remove_it =
+      std::remove_if(S.begin(), S.end(), [](int id) -> bool { return true; });
+
+  // P
+  auto p_remove_it =
+      std::remove_if(S.begin(), S.end(), [](int id) -> bool { return true; });
+
+  auto end_it = std::remove_if(
+      population.begin(), population.end(),
+      [&](Individual<PFalc>& person) -> bool {
+        // Important to remember that all updates to parameters must be done
+        // at end of function and not at begining.
+
+        auto& age = person.age_;
+        // Construct Lambda(t) for each individual.
+        auto b =
+            b_min + (b_max - b_min) /
+                        (1.0 + pow(person.status_.getIB() / I_B0, kappa_B));
+        auto psi = 1.0 - rho * std::exp(-age / age_0);
+
+        // It is plausible to add this to the individual for use when it
+        // comes to calculating the normalization constant etc in the
+        // mosquito model.
+        auto lambda = eir * psi * b * person.status_.getZeta();
+
+        // This function returns a boolean to determine if the individual
+        // will die.
+        auto death = person.status_.update_(person.status_, lambda, t, dt);
+
+        // auto decay_IB = person.I_B / params.d_B;
+        // auto decay_IA = person.I_A / params.d_A;
+        // auto decay_ICA = person.I_CA / params.d_C;
+        // auto decay_ICM = person.I_CM / params.d_M;
+
+        // person.I_B += dt * (h_function(eir) - decay_IB);
+        // person.I_A += dt * (h_function(lambda) - decay_IA);
+        // person.I_CA += dt * (h_function(lambda) - decay_ICA);
+        // person.I_CM += dt * (-decay_ICM);
+
+        age += dt;
+
+        // Update any immunity parameters.
+
+        return death;
+      });
+  population.erase(end_it, population.end());
+
+  // Mosquitoes can go here - use the appropriate parameters (currenly not
+  // listed).
+
+  return t + dt;
+}
+
+RealType one_step(const double t, const double dt,
                   std::vector<Individual<PFalc>>& population,
                   const Parameters& params, double eir) {
   // dt - time step size.
   // eir - entomological innoculation rate
   // person - current person that is being updated
   // params - Parameters required for the simulation.
+  // Get biting parameters to calculate Lambda
+  auto b_min = params.b_min, b_max = params.b_max, I_B0 = params.I_B0,
+       kappa_B = params.kappa_B, rho = params.rho, age_0 = params.age_0;
 
   // Loop over individuals.
-  std::remove_if(
+  auto end_it = std::remove_if(
       population.begin(), population.end(),
       [&](Individual<PFalc>& person) -> bool {
         // Important to remember that all updates to parameters must be done at
         // end of function and not at begining.
 
-        // Get biting parameters to calculate Lambda
-        auto b_min = params.b_min, b_max = params.b_max, I_B0 = params.I_B0,
-             kappa_B = params.kappa_B;
-
+        auto& age = person.age_;
         // Construct Lambda(t) for each individual.
         auto b =
             b_min + (b_max - b_min) /
                         (1.0 + pow(person.status_.getIB() / I_B0, kappa_B));
-        auto psi = 1.0 - params.rho * std::exp(-person.age_ / params.age_0);
+        auto psi = 1.0 - rho * std::exp(-age / age_0);
 
-        // It is plausible to add this to the
-        // individual for use when it comes to
-        // calculating the normalization
-        // constant etc in the mosquito model.
-        auto lambda = eir * psi * b *
-                      person.status_.getZeta();  // Force of infection on this
-                                                 // individual at current time.
+        // It is plausible to add this to the individual for use when it comes
+        // to calculating the normalization constant etc in the mosquito model.
+        auto lambda = eir * psi * b * person.status_.getZeta();
 
-        // This function returns a boolean to determin if the individual will
+        // This function returns a boolean to determine if the individual will
         // die.
-        return person.status_.update_(lambda, t, dt);
+        auto death = person.status_.update_(person.status_, lambda, t, dt);
+
+        // auto decay_IB = person.I_B / params.d_B;
+        // auto decay_IA = person.I_A / params.d_A;
+        // auto decay_ICA = person.I_CA / params.d_C;
+        // auto decay_ICM = person.I_CM / params.d_M;
+
+        // person.I_B += dt * (h_function(eir) - decay_IB);
+        // person.I_A += dt * (h_function(lambda) - decay_IA);
+        // person.I_CA += dt * (h_function(lambda) - decay_ICA);
+        // person.I_CM += dt * (-decay_ICM);
+
+        age += dt;
+
+        // Update any immunity parameters.
+
+        return death;
       });
+  population.erase(end_it, population.end());
+
+  // Mosquitoes can go here - use the appropriate parameters (currenly not
+  // listed).
+
+  return t + dt;
+}
 
 RealType one_step_switch(const double t, const double dt,
                          std::vector<Individual<PFalc>>& population,
@@ -134,7 +303,57 @@ PFalc::PFalc(const Status& status, double ICA, double ICM, double IA)
       I_CA_(ICA),
       I_CM_(ICM),
       I_A_(IA),
-      cached_infection_(std::numeric_limits<double>::infinity()){};
+      I_B_(IB),
+      zeta_(zeta) {
+  // cached_infection_(std::numeric_limits<double>::infinity()) {
+  // Must assign the update function for the individual. This depends
+  // upon status.
+  switch (current_) {
+    case Status::S:
+      update_ = [&](PFalc& state, const double lambda, const double t,
+                    const double dt) -> bool {
+        return S_update(state, params, lambda, t, dt);
+      };
+      break;
+    case Status::A:
+      update_ = [&](PFalc& state, const double lambda, const double t,
+                    const double dt) -> bool {
+        return A_update(state, params, lambda, t, dt);
+      };
+
+      break;
+    case Status::U:
+      update_ = [&](PFalc& state, const double lambda, const double t,
+                    const double dt) -> bool {
+        return U_update(state, params, lambda, t, dt);
+      };
+      break;
+    case Status::D:
+      update_ = [&](PFalc& state, const double lambda, const double t,
+                    const double dt) -> bool {
+        return D_update(state, params, lambda, t, dt);
+      };
+      break;
+    case Status::T:
+      update_ = [&](PFalc& state, const double lambda, const double t,
+                    const double dt) -> bool {
+        return T_update(state, params, lambda, t, dt);
+      };
+      break;
+    case Status::P:
+      update_ = [&](PFalc& state, const double lambda, const double t,
+                    const double dt) -> bool {
+        return P_update(state, params, lambda, t, dt);
+      };
+      break;
+    default:
+      throw std::logic_error(
+          "Incorrect initial compartment specified for individual. No "
+          "bool PFalc::update_(const double, const double, const double) "
+          "function assigned in PFalc::PFalc, line number " +
+          std::to_string(__LINE__));
+  }
+};
 
 double PFalc::getIC() noexcept { return I_CA_ + I_CM_; }
 
