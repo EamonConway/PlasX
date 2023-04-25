@@ -10,6 +10,7 @@
  * @copyright Copyright (c) 2023
  *
  */
+#include <iostream>
 #include <queue>
 
 #include "PlasX/Falciparum/Griffin/parameters.h"
@@ -25,9 +26,10 @@ namespace griffin {
  */
 enum class Status { S, A, U, D, T, P };
 
+std::ostream& operator<<(std::ostream& os, const Status& state);
 /**
- * @brief Class defining all individual level variables in the model of Griffin
- * et al.
+ * @brief Class defining all individual level variables in the model of
+ * Griffin et al.
  *
  */
 class PFalc {
