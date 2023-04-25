@@ -37,7 +37,8 @@ class PFalc {
    *
    * @param status Set the initial state of the individual.
    */
-  PFalc(const Status& status, double ICA, double ICM, double IA);
+  PFalc(const Parameters& params, const Status& status, double ICA, double ICM,
+        double IA, double IB, double zeta);
 
   /**
    * @brief Clear the queue of infections that will occur. This is only called
@@ -93,16 +94,16 @@ class PFalc {
   Status current_;
 
  private:
+ public:
   double I_CA_;
   double I_CM_;
   double I_A_;
-  double zeta_;
   double I_B_;
-
+  double zeta_;
   // I am assuming that you only want the force of infection to be lagged, hence
   // we only have to store the time of the next infection.
-  double cached_infection_;
-  std::priority_queue<double, std::vector<double>, std::less<double>>
+  // double cached_infection_;
+  std::priority_queue<double, std::vector<double>, std::greater<double>>
       infection_queue_;
 };
 
