@@ -84,7 +84,7 @@ class PFalc {
    * @details This function updates the state of an individual by a single
    * timestep.
    */
-  std::function<bool(const double, const double, const double)> update_;
+  std::function<bool(PFalc&, const double, const double, const double)> update_;
 
   /**
    * @brief Current state of the individual.
@@ -123,6 +123,13 @@ RealType one_step(double t, double dt,
 RealType one_step_switch(const double t, const double dt,
                          std::vector<Individual<PFalc>>& population,
                          const Parameters& params, double eir);
+
+RealType one_step_no_switch(const double t, const double dt,
+                            std::vector<Individual<PFalc>>& population,
+                            const Parameters& params, double eir,
+                            std::vector<int> S, std::vector<int> A,
+                            std::vector<int> U, std::vector<int> D,
+                            std::vector<int> T, std::vector<int> P);
 
 }  // namespace griffin
 }  // namespace falciparum
