@@ -14,7 +14,6 @@
 
 #include "PlasX/Falciparum/Griffin/parameters.h"
 #include "PlasX/individual.hpp"
-
 namespace plasx {
 namespace falciparum {
 namespace griffin {
