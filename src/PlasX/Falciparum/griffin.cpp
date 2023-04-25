@@ -5,6 +5,35 @@
 namespace plasx {
 namespace falciparum {
 namespace griffin {
+
+std::ostream& operator<<(std::ostream& os, const Status& state) {
+  switch (state) {
+    case Status::S:
+      os << "S";
+      break;
+    case Status::A:
+      os << "A";
+      break;
+    case Status::U:
+      os << "U";
+      break;
+    case Status::D:
+      os << "D";
+      break;
+    case Status::T:
+      os << "T";
+      break;
+    case Status::P:
+      os << "P";
+      break;
+    default:
+      throw std::logic_error(
+          "Incorrect compartment specified for individual in std::ostream& "
+          "operator<<(std::ostream& os, const pfg::Status& state). ");
+  }
+  return os;
+}
+
 // Forward declare functions that will be used to update the state of
 // individuals.
 static bool S_update(PFalc& state, const Parameters& params,
