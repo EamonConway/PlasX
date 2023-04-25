@@ -1,7 +1,7 @@
 #include "PlasX/Falciparum/griffin.hpp"
 
 #include "PlasX/random.hpp"
-
+#include "gtest/gtest.h"
 namespace plasx {
 namespace falciparum {
 namespace griffin {
@@ -516,6 +516,59 @@ static bool P_update(PFalc& state, const Parameters& params,
     }
   }
   return false;
+}
+
+// Static function tests.
+class GriffinModelUpdates : public ::testing::Test {
+ protected:
+  std::unique_ptr<plasx::falciparum::griffin::PFalc> p_state;
+  plasx::falciparum::griffin::Parameters params;
+
+  virtual void SetUp() {
+    p_state = std::make_unique<plasx::falciparum::griffin::PFalc>(
+        params, plasx::falciparum::griffin::Status::S, 0.0, 0.0, 0.0, 0.0, 1.0);
+  }
+
+  virtual void TearDown() {}
+};
+
+TEST_F(GriffinModelUpdates, Queueing) {
+  std::array<double, 8> times = {10.0, 11.0, 8.0, 4.5, 1212, 5839, 1, 294};
+  for (auto t : times) {
+    p_state->scheduleInfection(t);
+  }
+  // std::sort(times.begin(), times.end());
+  // for (auto t : times) {
+  //   std::cout << p_state->cached_infection_ << std::endl;
+  //   p_state->updateInfection(t);
+  // }
+  // p_state->updateInfection(10);
+  // std::cout << p_state->cached_infection_ << std::endl;
+}
+
+TEST_F(GriffinModelUpdates, S) {
+  // Update the susceptible individual
+  S_update(*p_state, params, 0.1, 0.0, 1.0);
+}
+TEST_F(GriffinModelUpdates, A) {
+  // Update the susceptible individual
+  A_update(*p_state, params, 0.1, 0.0, 1.0);
+}
+TEST_F(GriffinModelUpdates, U) {
+  // Update the susceptible individual
+  U_update(*p_state, params, 0.1, 0.0, 1.0);
+}
+TEST_F(GriffinModelUpdates, D) {
+  // Update the susceptible individual
+  D_update(*p_state, params, 0.1, 0.0, 1.0);
+}
+TEST_F(GriffinModelUpdates, T) {
+  // Update the susceptible individual
+  T_update(*p_state, params, 0.1, 0.0, 1.0);
+}
+TEST_F(GriffinModelUpdates, P) {
+  // Update the susceptible individual
+  P_update(*p_state, params, 0.1, 0.0, 1.0);
 }
 }  // namespace griffin
 }  // namespace falciparum

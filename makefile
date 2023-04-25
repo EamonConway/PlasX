@@ -1,5 +1,6 @@
 # Define flags for compilation. 
-CXX = g++ -Wall -Wpedantic -g 
+CXX = g++ -Wall -Wpedantic -g
+#  -fprofile-arcs -ftest-coverage
 # -fprofile-arcs -ftest-coverage 
 INCLUDE = include
 CPPFLAGS = -std=c++2a -DDUMP_INPUT -I$(INCLUDE)
@@ -8,7 +9,6 @@ OBJ = build
 SRC = src
 TEST = test
 
-# SOURCES := $(wildcard $(SRC)/**/*.cpp) 
 SOURCES := $(shell ls ${SRC}/**/*.cpp)
 SOURCES := $(shell find $(SRC) -name "*.cpp")
 OBJECTS := $(patsubst $(SRC)/%.cpp, $(OBJ)/%.o, $(SOURCES))
@@ -17,11 +17,15 @@ TEST_OBJECTS := $(patsubst $(TEST)/%.cpp, $(OBJ)/%.o, $(TEST_SOURCES))
 
 tests: $(OBJECTS) $(TEST_OBJECTS)
 	$(CXX) $(CPPFLAGS) -o build/TEST_runner $(TEST_OBJECTS) $(OBJECTS) -lgtest -pthread
+	$(CXX) $(CPPFLAGS) -o plasx main.cpp $(OBJECTS) -lgtest -pthread
 
 clean: 
 	$(RM) -r -f html
 	$(RM) -r -f latex
 	$(RM) -r -f build/
+	$(RM) -r -f **.gcov
+	$(RM) -r -f **.gcno
+	$(RM) plasx
 
 # Makefile rules for compilation. 
 $(OBJ)/%.o: $(SRC)/%.cpp
