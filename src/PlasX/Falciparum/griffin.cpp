@@ -5,8 +5,26 @@
 namespace plasx {
 namespace falciparum {
 namespace griffin {
-RealType one_step(double t, double dt,
-                  std::vector<Individual<PFalc>>& population,
+// Forward declare functions that will be used to update the state of
+// individuals.
+static bool S_update(PFalc& state, const Parameters& params,
+                     const double lambda, const double t,
+                     const double dt) noexcept;
+static bool A_update(PFalc& state, const Parameters& params,
+                     const double lambda, const double t,
+                     const double dt) noexcept;
+static bool U_update(PFalc& state, const Parameters& params,
+                     const double lambda, const double t,
+                     const double dt) noexcept;
+static bool D_update(PFalc& state, const Parameters& params,
+                     const double lambda, const double t,
+                     const double dt) noexcept;
+static bool T_update(PFalc& state, const Parameters& params,
+                     const double lambda, const double t,
+                     const double dt) noexcept;
+static bool P_update(PFalc& state, const Parameters& params,
+                     const double lambda, const double t,
+                     const double dt) noexcept;
                   const Parameters& params, double eir) {
   // dt - time step size.
   // eir - entomological innoculation rate
