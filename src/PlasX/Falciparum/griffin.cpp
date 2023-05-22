@@ -34,6 +34,7 @@ std::ostream& operator<<(std::ostream& os, const Status& state) {
   return os;
 }
 
+static double delay = 0.0;
 // Forward declare functions that will be used to update the state of
 // individuals.
 static bool S_update(PFalc& state, const Parameters& params,
