@@ -79,13 +79,6 @@ class PFalc {
   double getIB() noexcept { return I_B_; };
 
   /**
-   * @brief Update the individual.
-   * @details This function updates the state of an individual by a single
-   * timestep.
-   */
-  std::function<bool(PFalc&, const double, const double, const double)> update_;
-
-  /**
    * @brief Current state of the individual.
    *
    */

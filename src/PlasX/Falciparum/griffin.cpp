@@ -15,6 +15,8 @@ static bool determine_event(double lambda, double dt) {
   return false;  // You were not infected.
 }
 
+static bool SAU_infection(const int id, PFalc& state, const Parameters& params,
+                          const double t, std::vector<size_t>& A,
                           std::vector<size_t>& D, std::vector<size_t>& T) {
   // This function determines what happens with an infection in the S A or U
   // compartment. I need to determine which infections come here. Infections
@@ -24,9 +26,8 @@ static bool determine_event(double lambda, double dt) {
   // infections that could occur, and prophylaxis is killing everything off that
   // could infect you.
 
-  // How should we handle the fact that if you are in D, you stay in D.
-  // if(infection){ just stay at d}
-
+  // You only come into this function if you are in S A or U, we do not need to
+  // consider the case of D going to D.
   const auto r1 = genunf_std(generator), r2 = genunf_std(generator);
 
   // Get parameters
@@ -41,89 +42,57 @@ static bool determine_event(double lambda, double dt) {
   const auto phi = 1.0 / (1.0 + pow(IC_ratio, kappa_C));
 
   // Which compartment does the new infection go to.
-  if (r1 <= phi) {
-    // You have succeeded to go to the node that checks if you go to T or D.
-    if (r2 <= f_T) {
-      // You have been treated succesfully
-
-      // Remove the list of future infections - treatment flushes the
-      // parasite in all stages?
-      state.clearInfectionQueue();
-
-      // Update state of individual.
-      state.current_ = Status::T;
-      state.update_ = [&](const double lambda, const double t,
-                          const double dt) -> bool {
-        return T_update(state, params, lambda, t, dt);
-      };
-    } else {
-      // You have an untreated clinical disease
-      state.current_ = Status::D;
-      state.update_ = [&](const double lambda, const double t,
-                          const double dt) -> bool {
-        return D_update(state, params, lambda, t, dt);
-      };
-    }
-  } else {
-    // You failed to go to the node that checks if you go to T or D, therefore
-    // you go to A.
+  auto clinical_infection = r1 <= phi;
+  if (!clinical_infection) {
+    A.emplace_back(id);
     state.current_ = Status::A;
-    state.update_ = [&](const double lambda, const double t,
-                        const double dt) -> bool {
-      return A_update(state, params, lambda, t, dt);
-    };
+    return true;
   }
+
+  // Clinical infections - treated or untreated.
+  auto is_treated = r2 <= f_T;
+  if (is_treated) {
+    state.clearInfectionQueue();
+    T.emplace_back(id);
+    state.current_ = Status::T;
+  } else {
+    // You have an untreated clinical disease
+    D.emplace_back(id);
+    state.current_ = Status::D;
+  }
+  return true;
 }
 
-// Interesting concept. We update infections, but you cant recover at the or
-// do anything else. But you can possibly be infected (because it will go into
-// the later step) Instead of checking if an infection occurs with a lagged
-// force of infection. We will schedule the appropriate time for that to
-// occur. You will either, have this schedule activate, in which case you can
-// not trigger the other event, or all possible events can occur (infection
-// will be schedule and the rest). However, that doesnt make sense, we never
-// checked back to see if someone recovered. So.... we shall always check if a
-// future infection is scheduled. We then check if any of the scheduled events
-// occur, and if so you can not do anything else. I think that this is
-// equivalent to the way that the code used to be implemented.
-
-// Define update Functions.
-static bool S_update(PFalc& state, const Parameters& params,
-                     const double lambda, const double t,
-                     const double dt) noexcept {
-  // What do we do for a susceptible person.
-  // They will either be infected or do nothing.
-  // Do you get infected?
-  // const auto prob_event = params.mu_d + lambda;
-  // Death or infection....
-
-  // Check to see if we schedule an infection for a later time.
-  if (determine_event(lambda, dt)) {
+// Update the state of individuals.
+static bool S_update(const int id, PFalc& state, const Parameters& params,
+                     const double lambda, const double t, const double dt,
+                     std::vector<size_t>& A, std::vector<size_t>& D,
+                     std::vector<size_t>& T, std::vector<size_t>& Dead) {
+  // Check to see if a bite occurs this time step.
+  auto successful_bite = determine_event(lambda, dt);
+  if (successful_bite) {
     // Add this infection to the schedule with the appropriate delay.
     state.scheduleInfection(t + delay);
   }
 
-  // Check if an infection needs to happen this timestep. Update the infection
-  // Queue - this function changes the update_ function within state.
-  if (state.updateInfection(t)) {
-    // The individual has now got a new infection active - do the new infection
-    // stuff.
-    SAU_infection(state, params, t);
-  } else if (determine_event(params.mu_d, dt)) {
-    // Oh no - they die. This is handled seperately from determining if we
-    // schedule an infection. This keeps the current implementation consistent
-    // with the past implementation.
-    return true;
+  // Check if a prior bite becomes an active infection this timestep.
+  auto infection_active = state.updateInfection(t);
+  if (!infection_active) {
+    auto death = determine_event(params.mu_d, dt);
+    if (death) {
+      Dead.emplace_back(id);
+    }
+    return death;
   }
-  // Nothing fun happened... better luck next time.
-  return false;  // Nothing happened oh no.
+
+  return SAU_infection(id, state, params, t, A, D, T);
 }
 
-static bool A_update(PFalc& state, const Parameters& params,
-                     const double lambda, const double t,
-                     const double dt) noexcept {
-  // In this compartment you can be infected or move from A into U with
-
+static bool A_update(const int id, PFalc& state, const Parameters& params,
+                     const double lambda, const double t, const double dt,
+                     std::vector<size_t>& A, std::vector<size_t>& U,
+                     std::vector<size_t>& D, std::vector<size_t>& T,
+                     std::vector<size_t>& Dead) noexcept {
   // Construct the rate that the individual will leave A .
   const auto r_A0 = params.r_A0, kappa_A = params.kappa_A, I_A0 = params.I_A0,
              w_A = params.w_A;
@@ -135,26 +104,24 @@ static bool A_update(PFalc& state, const Parameters& params,
   // Either something will happen, or nothing will happen.
   const auto prob_event = r_A + params.mu_d;
 
-  // Do we want to schedule an infection?
-  if (determine_event(lambda, dt)) {
-    // Schedule an infection
+  // Check to see if a bite occurs this time step.
+  auto successful_bite = determine_event(lambda, dt);
+  if (successful_bite) {
+    // Add this infection to the schedule with the appropriate delay.
     state.scheduleInfection(t + delay);
   }
 
   // Check and update the infection Queue - this function changes the update
   // function.
   if (state.updateInfection(t)) {
-    SAU_infection(state, params, t);
+    return SAU_infection(id, state, params, t, A, D, T);
   } else if (determine_event(prob_event, dt)) {
     // Hey something is going to happen, but what! Lets find out.
     const auto r = genunf_std(generator);  // random number
     if (r < r_A / prob_event) {
       // You've recovered instead, move from A to U.
+      U.emplace_back(id);
       state.current_ = Status::U;
-      state.update_ = [&](const double lambda, const double t,
-                          const double dt) -> bool {
-        return U_update(state, params, lambda, t, dt);
-      };
     } else {
       return true;  // Death
     }
@@ -163,31 +130,30 @@ static bool A_update(PFalc& state, const Parameters& params,
   return false;
 }
 
-static bool U_update(PFalc& state, const Parameters& params,
-                     const double lambda, const double t,
-                     const double dt) noexcept {
+static bool U_update(const int id, PFalc& state, const Parameters& params,
+                     const double lambda, const double t, const double dt,
+                     std::vector<size_t>& S, std::vector<size_t>& A,
+                     std::vector<size_t>& D, std::vector<size_t>& T,
+                     std::vector<size_t>& Dead) noexcept {
   // In this compartment you can be infected or move to susceptible.
   const auto prob_event = params.r_U + params.mu_d;
-
-  // Do we want to schedule an infection?
-  if (determine_event(lambda, dt)) {
-    // Schedule an infection
+  // Check to see if a bite occurs this time step.
+  auto successful_bite = determine_event(lambda, dt);
+  if (successful_bite) {
+    // Add this infection to the schedule with the appropriate delay.
     state.scheduleInfection(t + delay);
   }
 
   // Check and update the infection Queue - this function changes the update
   // function.
   if (state.updateInfection(t)) {
-    SAU_infection(state, params, t);
+    return SAU_infection(id, state, params, t, A, D, T);
   } else if (determine_event(prob_event, dt)) {
     // Hey something is going to happen, but what! Lets find out.
     const auto r = genunf_std(generator);  // random number
     if (r < params.r_U / prob_event) {
+      S.emplace_back(id);
       state.current_ = Status::S;
-      state.update_ = [&](const double lambda, const double t,
-                          const double dt) -> bool {
-        return S_update(state, params, lambda, t, dt);
-      };
     } else {
       // Oh no death.
       return true;
@@ -196,15 +162,17 @@ static bool U_update(PFalc& state, const Parameters& params,
   return false;
 }
 
-static bool D_update(PFalc& state, const Parameters& params,
-                     const double lambda, const double t,
-                     const double dt) noexcept {
+static bool D_update(const int id, PFalc& state, const Parameters& params,
+                     const double lambda, const double t, const double dt,
+                     std::vector<size_t>& A,
+                     std::vector<size_t>& Dead) noexcept {
   // This checks to see if the time you are in D is enough to transition.
   const auto prob_event = params.r_D + params.mu_d;
 
-  // Do we want to schedule an infection?
-  if (determine_event(lambda, dt)) {
-    // Schedule an infection
+  // Check to see if a bite occurs this time step.
+  auto successful_bite = determine_event(lambda, dt);
+  if (successful_bite) {
+    // Add this infection to the schedule with the appropriate delay.
     state.scheduleInfection(t + delay);
   }
 
@@ -217,16 +185,15 @@ static bool D_update(PFalc& state, const Parameters& params,
   // and going to D again thanks to the wonders of the exponential
   // distribution.
   if (state.updateInfection(t)) {
-    // They go to D... so its still D update? Do nothing? Will have to check.
+    // They go to D... so do not remove them from D and continue to do nothing
+    // else.
   } else if (determine_event(prob_event, dt)) {
     // Hey something is going to happen, but what! Lets find out.
     const auto r = genunf_std(generator);  // random number
     if (r < params.r_D / prob_event) {
       // You've been here long enough, move from D to A.
+      A.emplace_back(id);
       state.current_ = Status::A;
-      state.update_ = [&](double lambda, const double t, double dt) -> bool {
-        return A_update(state, params, lambda, t, dt);
-      };
     } else {
       // Oh no death.
       return true;
@@ -235,33 +202,29 @@ static bool D_update(PFalc& state, const Parameters& params,
   return false;
 }
 
-static bool T_update(PFalc& state, const Parameters& params,
-                     const double lambda, const double t,
-                     const double dt) noexcept {
+static bool T_update(const int id, PFalc& state, const Parameters& params,
+                     const double lambda, const double t, const double dt,
+                     std::vector<size_t>& P, std::vector<size_t>& Dead) {
   // This checks to see if the time you are in T is enough to transition.
   const auto prob_event = params.r_T + params.mu_d;
-  if (determine_event(prob_event, dt)) {
-    // Hey something is going to happen, but what! Lets find out.
-    const auto r = genunf_std(generator);  // random number
-
-    if (r < params.r_T / prob_event) {
-      // You've been here long enough, move from T to P.
-      state.current_ = Status::P;
-      state.update_ = [&](const double lambda, const double t,
-                          const double dt) -> bool {
-        return P_update(state, params, lambda, t, dt);
-      };
-    } else {
-      // Oh no, you died.
-      return true;
-    }
+  if (!determine_event(prob_event, dt)) {
+    return false;
   }
 
-  return false;
+  const auto r = genunf_std(generator);
+  if (r < params.r_T / prob_event) {
+    // You've been here long enough, move from T to P.
+    P.emplace_back(id);
+    state.current_ = Status::P;
+  } else {
+    Dead.emplace_back(id);
+  }
+  return true;
 }
 
-static bool P_update(PFalc& state, const Parameters& params,
-                     const double lambda, const double t, double dt) noexcept {
+static bool P_update(const int id, PFalc& state, const Parameters& params,
+                     const double lambda, const double t, double dt,
+                     std::vector<size_t>& S, std::vector<size_t>& Dead) {
   // This checks to see if the time you are in P is enough to transition.
   const auto prob_event = params.r_P + params.mu_d;
   if (determine_event(prob_event, dt)) {
@@ -269,15 +232,18 @@ static bool P_update(PFalc& state, const Parameters& params,
     const auto r = genunf_std(generator);
     if (r < params.r_P / prob_event) {
       // You've been here long enough, move from P to S.
+      S.emplace_back(id);
       state.current_ = Status::S;
-      state.update_ = [&](const double lambda, const double t,
-                          const double dt) -> bool {
-        return S_update(state, params, lambda, t, dt);
-      };
+
     } else {
       // Oh no, you died.
-      return true;
+      Dead.emplace_back(id);
     }
+    return true;
+  }
+  return false;
+}
+
   }
   return false;
 }
