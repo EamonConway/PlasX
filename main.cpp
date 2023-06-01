@@ -22,12 +22,12 @@ int main() {
   // Run a simulation - as this function is templated, it should be possible to
   // add arbitrary numbers of inputs. This will be helpful for establishing
   // any interventions.
-  start = std::chrono::steady_clock::now();
+  auto start = std::chrono::steady_clock::now();
   [[maybe_unused]] auto t2 =
-      plasx::simulation(0.0_yrs, 1.0_yrs, 1.0_days, pfg::one_step_switch,
+      plasx::simulation(0.0_yrs, 1.0_yrs, 1.0_days, pfg::one_step_no_switch,
                         population, params, 1.0);
-  end = std::chrono::steady_clock::now();
-  elapsed_seconds = end - start;
+  auto end = std::chrono::steady_clock::now();
+  auto elapsed_seconds = end - start;
   std::cout << "elapsed time switches: " << elapsed_seconds.count() << "s\n";
   std::cout << "pop size " << population.size() << std::endl;
 
