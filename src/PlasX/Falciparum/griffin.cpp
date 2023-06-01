@@ -15,6 +15,8 @@ static bool determine_event(double lambda, double dt) {
   return false;  // You were not infected.
 }
 
+static bool SAU_infection(const int id, PFalc& state, const Parameters& params,
+                          const double t, std::vector<size_t>& A,
                           std::vector<size_t>& D, std::vector<size_t>& T) {
   // This function determines what happens with an infection in the S A or U
   // compartment. I need to determine which infections come here. Infections
@@ -24,9 +26,8 @@ static bool determine_event(double lambda, double dt) {
   // infections that could occur, and prophylaxis is killing everything off that
   // could infect you.
 
-  // How should we handle the fact that if you are in D, you stay in D.
-  // if(infection){ just stay at d}
-
+  // You only come into this function if you are in S A or U, we do not need to
+  // consider the case of D going to D.
   const auto r1 = genunf_std(generator), r2 = genunf_std(generator);
 
   // Get parameters
@@ -41,38 +42,25 @@ static bool determine_event(double lambda, double dt) {
   const auto phi = 1.0 / (1.0 + pow(IC_ratio, kappa_C));
 
   // Which compartment does the new infection go to.
-  if (r1 <= phi) {
-    // You have succeeded to go to the node that checks if you go to T or D.
-    if (r2 <= f_T) {
-      // You have been treated succesfully
-
-      // Remove the list of future infections - treatment flushes the
-      // parasite in all stages?
-      state.clearInfectionQueue();
-
-      // Update state of individual.
-      state.current_ = Status::T;
-      state.update_ = [&](const double lambda, const double t,
-                          const double dt) -> bool {
-        return T_update(state, params, lambda, t, dt);
-      };
-    } else {
-      // You have an untreated clinical disease
-      state.current_ = Status::D;
-      state.update_ = [&](const double lambda, const double t,
-                          const double dt) -> bool {
-        return D_update(state, params, lambda, t, dt);
-      };
-    }
-  } else {
-    // You failed to go to the node that checks if you go to T or D, therefore
-    // you go to A.
+  auto clinical_infection = r1 <= phi;
+  if (!clinical_infection) {
+    A.emplace_back(id);
     state.current_ = Status::A;
-    state.update_ = [&](const double lambda, const double t,
-                        const double dt) -> bool {
-      return A_update(state, params, lambda, t, dt);
-    };
+    return true;
   }
+
+  // Clinical infections - treated or untreated.
+  auto is_treated = r2 <= f_T;
+  if (is_treated) {
+    state.clearInfectionQueue();
+    T.emplace_back(id);
+    state.current_ = Status::T;
+  } else {
+    // You have an untreated clinical disease
+    D.emplace_back(id);
+    state.current_ = Status::D;
+  }
+  return true;
 }
 
 // Interesting concept. We update infections, but you cant recover at the or
