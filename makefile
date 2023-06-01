@@ -15,9 +15,14 @@ OBJECTS := $(patsubst $(SRC)/%.cpp, $(OBJ)/%.o, $(SOURCES))
 TEST_SOURCES := $(wildcard $(TEST)/*.cpp) 
 TEST_OBJECTS := $(patsubst $(TEST)/%.cpp, $(OBJ)/%.o, $(TEST_SOURCES))
 
-tests: $(OBJECTS) $(TEST_OBJECTS)
+main: tests objects
+	$(CXX) $(CPPFLAGS) -o plasx main.cpp $(OBJECTS)
+
+tests: objects test_objects
 	$(CXX) $(CPPFLAGS) -o build/TEST_runner $(TEST_OBJECTS) $(OBJECTS) -lgtest -pthread
 
+objects: $(OBJECTS)
+test_objects: $(TEST_OBJECTS)
 clean: 
 	$(RM) -r -f html
 	$(RM) -r -f latex
