@@ -63,54 +63,30 @@ static bool SAU_infection(const int id, PFalc& state, const Parameters& params,
   return true;
 }
 
-// Interesting concept. We update infections, but you cant recover at the or
-// do anything else. But you can possibly be infected (because it will go into
-// the later step) Instead of checking if an infection occurs with a lagged
-// force of infection. We will schedule the appropriate time for that to
-// occur. You will either, have this schedule activate, in which case you can
-// not trigger the other event, or all possible events can occur (infection
-// will be schedule and the rest). However, that doesnt make sense, we never
-// checked back to see if someone recovered. So.... we shall always check if a
-// future infection is scheduled. We then check if any of the scheduled events
-// occur, and if so you can not do anything else. I think that this is
-// equivalent to the way that the code used to be implemented.
-
-// Define update Functions.
-static bool S_update(PFalc& state, const Parameters& params,
-                     const double lambda, const double t,
-                     const double dt) noexcept {
-  // What do we do for a susceptible person.
-  // They will either be infected or do nothing.
-  // Do you get infected?
-  // const auto prob_event = params.mu_d + lambda;
-  // Death or infection....
-
-  // Check to see if we schedule an infection for a later time.
-  if (determine_event(lambda, dt)) {
+// Update the state of individuals.
+static bool S_update(const int id, PFalc& state, const Parameters& params,
+                     const double lambda, const double t, const double dt,
+                     std::vector<size_t>& A, std::vector<size_t>& D,
+                     std::vector<size_t>& T, std::vector<size_t>& Dead) {
+  // Check to see if a bite occurs this time step.
+  auto successful_bite = determine_event(lambda, dt);
+  if (successful_bite) {
     // Add this infection to the schedule with the appropriate delay.
     state.scheduleInfection(t + delay);
   }
 
-  // Check if an infection needs to happen this timestep. Update the infection
-  // Queue - this function changes the update_ function within state.
-  if (state.updateInfection(t)) {
-    // The individual has now got a new infection active - do the new infection
-    // stuff.
-    SAU_infection(state, params, t);
-  } else if (determine_event(params.mu_d, dt)) {
-    // Oh no - they die. This is handled seperately from determining if we
-    // schedule an infection. This keeps the current implementation consistent
-    // with the past implementation.
-    return true;
+  // Check if a prior bite becomes an active infection this timestep.
+  auto infection_active = state.updateInfection(t);
+  if (!infection_active) {
+    auto death = determine_event(params.mu_d, dt);
+    if (death) {
+      Dead.emplace_back(id);
+    }
+    return death;
   }
-  // Nothing fun happened... better luck next time.
-  return false;  // Nothing happened oh no.
-}
 
-static bool A_update(PFalc& state, const Parameters& params,
-                     const double lambda, const double t,
-                     const double dt) noexcept {
-  // In this compartment you can be infected or move from A into U with
+  return SAU_infection(id, state, params, t, A, D, T);
+}
 
   // Construct the rate that the individual will leave A .
   const auto r_A0 = params.r_A0, kappa_A = params.kappa_A, I_A0 = params.I_A0,
