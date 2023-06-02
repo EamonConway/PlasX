@@ -512,29 +512,28 @@ PFalc::PFalc(const Status& status, double ICA, double ICM, double IA)
       I_CA_(ICA),
       I_CM_(ICM),
       I_A_(IA),
-      zeta_(0.0),
-      I_B_(0.0){
-          // cached_infection_(std::numeric_limits<double>::infinity()) {
-      };
+      zeta_(1.0),
+      I_B_(0.0) {
+  auto infty = std::numeric_limits<double>::infinity();
+  infection_queue_ =
+      std::priority_queue<double, std::vector<double>, std::greater<double>>();
+  infection_queue_.push(infty);
+  // cached_infection_(std::numeric_limits<double>::infinity()) {
+};
 
 double PFalc::getIC() noexcept { return I_CA_ + I_CM_; }
 
 double PFalc::getIA() noexcept { return I_A_; }
 
 void PFalc::clearInfectionQueue() noexcept {
-  // Replace with an empty queue.
-  infection_queue_ =
-      std::priority_queue<double, std::vector<double>, std::less<double>>();
-  cached_infection_ = std::numeric_limits<double>::infinity();
+  // Replace with a queue consisting only of an infection at infinity.
+  while(infection_queue_.size()!=1){
+    infection_queue_.pop();
+  }
 }
 
 void PFalc::scheduleInfection(const double t) {
-  const auto isCacheable = t < cached_infection_;
-  // You have to do the push first. or you might overright the cached value and
-  // lose it
-  infection_queue_.push(!isCacheable * t + isCacheable * cached_infection_);
-  cached_infection_ = isCacheable * t + !isCacheable * cached_infection_;
-  // Arguably faster than having the if statements.... will have to check.
+  infection_queue_.push(t);
 };
 
 bool PFalc::updateInfection(const double t) {
@@ -547,18 +546,12 @@ bool PFalc::updateInfection(const double t) {
   // infection we would have to check against cache value. If cahced value is
   // larger, we need to move it bak into the queue. But this might just be fine.
   // It is an interesting thing to look for.
-  if (t >= cached_infection_) [[unlikely]] {
-    // The cached infection is going to take place.
-    if (infection_queue_.empty()) {
-      cached_infection_ = std::numeric_limits<double>::infinity();
-    } else {
-      cached_infection_ = infection_queue_.top();
-      infection_queue_.pop();
-    }
-    return true;
-  } else [[likely]] {
-    return false;
+
+  auto activate_infection = t >= infection_queue_.top();
+  if (activate_infection) {
+    infection_queue_.pop();
   }
+  return activate_infection;
 }
 
 // Interesting concept. We update infections, but you cant recover at the or
