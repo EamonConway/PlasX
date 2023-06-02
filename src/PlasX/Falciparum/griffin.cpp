@@ -533,12 +533,7 @@ void PFalc::clearInfectionQueue() noexcept {
 }
 
 void PFalc::scheduleInfection(const double t) {
-  const auto isCacheable = t < cached_infection_;
-  // You have to do the push first. or you might overright the cached value and
-  // lose it
-  infection_queue_.push(!isCacheable * t + isCacheable * cached_infection_);
-  cached_infection_ = isCacheable * t + !isCacheable * cached_infection_;
-  // Arguably faster than having the if statements.... will have to check.
+  infection_queue_.push(t);
 };
 
 bool PFalc::updateInfection(const double t) {

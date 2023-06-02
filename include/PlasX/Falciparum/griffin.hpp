@@ -93,8 +93,7 @@ class PFalc {
 
   // I am assuming that you only want the force of infection to be lagged, hence
   // we only have to store the time of the next infection.
-  double cached_infection_;
-  std::priority_queue<double, std::vector<double>, std::less<double>>
+  std::priority_queue<double, std::vector<double>, std::greater<double>>
       infection_queue_;
 };
 
