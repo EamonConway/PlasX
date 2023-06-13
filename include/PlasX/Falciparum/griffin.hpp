@@ -114,15 +114,6 @@ RealType one_step(double t, double dt,
 RealType one_step_switch(const double t, const double dt,
                          std::vector<Individual<PFalc>>& population,
                          const Parameters& params, double eir);
-
-RealType one_step_no_switch(const double t, const double dt,
-                            std::vector<Individual<PFalc>>& population,
-                            const Parameters& params, double eir,
-                            std::vector<size_t>& S, std::vector<size_t>& A,
-                            std::vector<size_t>& U, std::vector<size_t>& D,
-                            std::vector<size_t>& T, std::vector<size_t>& P,
-                            std::vector<size_t>& Dead);
-
 }  // namespace griffin
 }  // namespace falciparum
 }  // namespace plasx
