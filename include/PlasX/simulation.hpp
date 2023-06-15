@@ -20,11 +20,12 @@ namespace plasx {
  */
 template <class OneStepFunction, class... OneStepArgs>
 RealType simulation(const double t0, const double t1, const double dt,
-                    OneStepFunction one_step, OneStepArgs... function_args) {
+                    OneStepFunction one_step, OneStepArgs&&... function_args) {
   auto t = t0;
 
   while (t < t1) {
-    auto t = one_step(t, dt, function_args);
+    t = one_step(t, dt,
+                 std::forward<decltype(function_args)>(function_args)...);
   }
   return t;
 }
