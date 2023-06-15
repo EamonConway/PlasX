@@ -20,11 +20,6 @@ namespace plasx {
  * information for the disease.
  */
 template <typename DiseaseStatus>
-/**
- * @details Individual is a class that contains all individual specific
- * information.
- *
- */
 class Individual {
  public:
   /**
