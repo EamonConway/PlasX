@@ -30,7 +30,7 @@ class Individual {
    * underlying status_.
    */
   Individual(double age, auto&&... dargs)
-      : age_(age), status_(std::forward<decltype(dargs)>(dargs)...){};
+      : age_(age), status_(age, std::forward<decltype(dargs)>(dargs)...){};
 
   RealType age_;
   DiseaseStatus status_;
