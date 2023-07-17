@@ -12,5 +12,6 @@
  */
 namespace plasx {
   using RealType = double;
-}
+  using SizeType = size_t;
+  }  // namespace plasx
 #endif
