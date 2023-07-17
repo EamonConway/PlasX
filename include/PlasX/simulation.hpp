@@ -33,7 +33,7 @@ RealType simulation(const RealType t0, const RealType t1, const RealType dt,
   while (t < t1) {
     t = OneStepFunctionSelector<
         OneStepFunction, const RealType&, const RealType&,
-        OneStepArgs...>::call(std::forward<OneStepFunction>(one_step), t, dt,
+        OneStepArgs...>::call(std::forward<OneStepFunction>(one_step),t,dt,
                               std::forward<OneStepArgs>(function_args)...);
   }
   return t;
