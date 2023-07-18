@@ -7,7 +7,8 @@ namespace plasx {
 // The simulation function
 template <class OneStepFunction, class... OneStepArgs>
 RealType simulation(const RealType t0, const RealType t1, const RealType dt,
-                    OneStepFunction one_step, OneStepArgs&&... function_args) {
+                    OneStepFunction&& one_step,
+                    OneStepArgs&&... function_args) {
   // Call the appropriate overload using the OneStepFunctionSelector
   static_assert(std::invocable<OneStepFunction, const RealType, const RealType,
                                OneStepArgs...>);
