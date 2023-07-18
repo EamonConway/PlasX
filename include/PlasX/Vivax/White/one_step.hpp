@@ -20,12 +20,9 @@
  * @copyright Copyright (c) 2023
  *
  */
-#include <queue>
-
 #include "PlasX/Vivax/White/parameters.hpp"
 #include "PlasX/Vivax/White/pvivax.hpp"
 #include "PlasX/individual.hpp"
-
 namespace plasx {
 namespace vivax {
 namespace white {
@@ -46,9 +43,29 @@ namespace white {
  * @param eir
  * @return RealType
  */
-RealType one_step(RealType t, RealType dt,
-                  std::vector<Individual<PVivax>>& population,
-                  const Parameters& params, RealType eir);
+struct one_step_fn {
+  RealType operator()(RealType t, RealType dt,
+                      std::vector<Individual<PVivax>>& population,
+                      const Parameters& params, RealType eir) const;
+
+  template <class EirFunction>
+  RealType operator()(RealType t, RealType dt,
+                      std::vector<Individual<PVivax>>& population,
+                      const Parameters& params, EirFunction eir_func) const {
+    // Ensure that eir is invocable.
+    static_assert(std::invocable<EirFunction, RealType>,
+                  "EirFunction is not invokable with plasx::RealType.");
+    // Check that the type is convertible to real type.
+    static_assert(
+        std::is_convertible_v<decltype(eir_func(t)), RealType>,
+        "EirFunction must have a return type convertible to RealType");
+
+    double eir = eir_func(t);
+    return operator()(t, dt, population, params, eir);
+  };
+};
+
+inline constexpr one_step_fn one_step{};
 }  // namespace white
 }  // namespace vivax
 }  // namespace plasx

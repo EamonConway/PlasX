@@ -471,10 +471,10 @@ static UpdateStateReturnType UpdateState(PVivax& state,
 };
 }  // namespace
 
-// Control flow of a single step of the simulation.
-RealType one_step(RealType t, RealType dt,
-                  std::vector<Individual<PVivax>>& population,
-                  const Parameters& params, RealType eir) {
+// // Control flow of a single step of the simulation.
+RealType one_step_fn::operator()(RealType t, RealType dt,
+                                 std::vector<Individual<PVivax>>& population,
+                                 const Parameters& params, RealType eir) const {
   // We need the value for omega within this timestep, however, it requires
   // knowing information over the whole population. As such we calculate these
   // details during the previous timestep. It is not guaranteed that there has
