@@ -9,7 +9,8 @@ template <class OneStepFunction, class... OneStepArgs>
 RealType simulation(const RealType t0, const RealType t1, const RealType dt,
                     OneStepFunction&& one_step,
                     OneStepArgs&&... function_args) {
-  // Call the appropriate overload using the OneStepFunctionSelector
+  // Check that the supplied OneStepFunction is invocable with the appropriate
+  // inputs.
   static_assert(std::invocable<OneStepFunction, const RealType, const RealType,
                                OneStepArgs...>);
   auto t = t0;
