@@ -72,8 +72,8 @@ namespace {
 // Constant values for return types. Make explicit what should be returned from
 // functions when an individual lives or dies. The prefix k is used to signify
 // that it is global within this translation unit.
-const bool kEXIT_INDIVIDUAL_LIVES = false;
-const bool kEXIT_INDIVIDUAL_DIES = true;
+constexpr bool kEXIT_INDIVIDUAL_LIVES = false;
+constexpr bool kEXIT_INDIVIDUAL_DIES = true;
 
 static RealType HillFunction(RealType x, RealType min, RealType diff,
                              RealType x50, RealType kappa) {
