@@ -54,13 +54,13 @@ struct one_step_fn {
                       const Parameters& params, EirFunction eir_func) const {
     // Ensure that eir is invocable.
     static_assert(std::invocable<EirFunction, RealType>,
-                  "EirFunction is not invokable with plasx::RealType.");
+                  "EirFunction is not invocable with plasx::RealType.");
     // Check that the type is convertible to real type.
     static_assert(
         std::is_convertible_v<decltype(eir_func(t)), RealType>,
-        "EirFunction must have a return type convertible to RealType");
+        "EirFunction must have a return type convertible to plasx::RealType");
 
-    double eir = eir_func(t);
+    RealType eir = eir_func(t);
     return operator()(t, dt, population, params, eir);
   };
 };
