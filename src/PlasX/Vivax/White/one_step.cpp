@@ -498,12 +498,15 @@ std::unordered_map<Status, int> one_step_fn::operator()(
   std::vector<MaternalImmunity> maternal_immunity_store;
   maternal_immunity_store.reserve(population.size() / 4);
 
-  // Output data storage.
-  std::unordered_map<Status, int> log_data;
+  // Output data storage - TimeStepLogger?
+  std::unordered_map<Status, int> data_logger{
+      {Status::S, 0},   {Status::I_PCR, 0}, {Status::I_LM, 0},
+      {Status::I_D, 0}, {Status::T, 0},     {Status::P, 0}};
 
   // Update the state of each individual one by one - cache any values that will
   // be of use in the next time step - we should determine if replace_if can be
-  // used here instead - this may minimise copying.
+  // used here instead - this may minimise copying of data and speed up the
+  // operation.
   const auto pop_size = population.size();
   const auto erase_it = std::remove_if(
       population.begin(), population.end(),
@@ -520,8 +523,9 @@ std::unordered_map<Status, int> one_step_fn::operator()(
 
         const auto X = state.getOmega() / omega, zeta = state.getZeta(),
                    lambda = eir * X * zeta;
-        const auto [isIndividualDead, c] =
-            UpdateState(state, params, lambda, t, dt);
+        const auto state_output = UpdateState(state, params, lambda, t, dt);
+        // Bind output type to more suitable names.
+        const auto& [individual_dies, c] = state_output;
 
         // Does the individual contribute to maternal immunity - we do not have
         // to worry about a person dying after we deem that they are capable of
@@ -539,7 +543,7 @@ std::unordered_map<Status, int> one_step_fn::operator()(
         // if an individual is to die this timestep than they cannot be a
         // birthing person on the next time step, nor can their replacement
         // (they will be aged zero)
-        if (isIndividualDead) {
+        if (individual_dies) {
           return kEXIT_INDIVIDUAL_DIES;
         }
 
@@ -561,7 +565,7 @@ std::unordered_map<Status, int> one_step_fn::operator()(
                              params.end_maternal_immunity);
 
         // Log the current status of the individual for outputting.
-        ++log_data[state.current_];
+        ++data_logger[state.current_];
 
         return kEXIT_INDIVIDUAL_LIVES;
       });
@@ -598,15 +602,14 @@ std::unordered_map<Status, int> one_step_fn::operator()(
     cacheable_omega += population.back().status_.getOmega();
 
     // Log the current status of the individual for outputting.
-    ++log_data[population.back().status_.current_];
+    ++data_logger[population.back().status_.current_];
   }
 
-  // Output information
+  // Update timestep
   t += dt;
   // Store cached values and data required to confirm validity of the cache
   kcached_data.emplace(cacheable_omega, t);
-  // return tout;
-  return log_data;
+  return data_logger;
 };
 }  // namespace white
 }  // namespace vivax
