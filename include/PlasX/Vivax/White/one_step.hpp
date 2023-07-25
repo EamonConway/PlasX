@@ -44,14 +44,14 @@ namespace white {
  * @return RealType
  */
 struct one_step_fn {
-  RealType operator()(RealType t, RealType dt,
-                      std::vector<Individual<PVivax>>& population,
-                      const Parameters& params, RealType eir) const;
+  std::unordered_map<Status, int> operator()(
+      RealType& t, RealType dt, std::vector<Individual<PVivax>>& population,
+      const Parameters& params, RealType eir) const;
 
   template <class EirFunction>
-  RealType operator()(RealType t, RealType dt,
-                      std::vector<Individual<PVivax>>& population,
-                      const Parameters& params, EirFunction eir_func) const {
+  std::unordered_map<Status, int> operator()(
+      RealType& t, RealType dt, std::vector<Individual<PVivax>>& population,
+      const Parameters& params, EirFunction eir_func) const {
     // Ensure that eir is invocable.
     static_assert(std::invocable<EirFunction, RealType>,
                   "EirFunction is not invocable with plasx::RealType.");

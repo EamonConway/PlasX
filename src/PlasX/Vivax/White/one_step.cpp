@@ -471,10 +471,10 @@ static UpdateStateReturnType UpdateState(PVivax& state,
 };
 }  // namespace
 
-// // Control flow of a single step of the simulation.
-RealType one_step_fn::operator()(RealType t, RealType dt,
-                                 std::vector<Individual<PVivax>>& population,
-                                 const Parameters& params, RealType eir) const {
+// Control flow of a single step of the simulation.
+std::unordered_map<Status, int> one_step_fn::operator()(
+    RealType& t, RealType dt, std::vector<Individual<PVivax>>& population,
+    const Parameters& params, RealType eir) const {
   // We need the value for omega within this timestep, however, it requires
   // knowing information over the whole population. As such we calculate these
   // details during the previous timestep. It is not guaranteed that there has
@@ -495,12 +495,12 @@ RealType one_step_fn::operator()(RealType t, RealType dt,
 
   // Variables to be calculated during loop over individuals
   auto cacheable_omega = 0.0;
-  // auto foi_human_to_mosquito = 0.0;
   std::vector<MaternalImmunity> maternal_immunity_store;
   maternal_immunity_store.reserve(population.size() / 4);
 
-  // eir is calculable from the mosquito state - or retrievable from the
-  // cache if this becomes too much of a calculation
+  // Output data storage.
+  std::unordered_map<Status, int> log_data;
+
   // Update the state of each individual one by one - cache any values that will
   // be of use in the next time step - we should determine if replace_if can be
   // used here instead - this may minimise copying.
@@ -508,11 +508,11 @@ RealType one_step_fn::operator()(RealType t, RealType dt,
   const auto erase_it = std::remove_if(
       population.begin(), population.end(),
       [&](Individual<PVivax>& person) -> bool {
-        // Log the current status of the individual for output.
-
         // One step the individual - but they must not exceed maximum age.
         auto& state = person.status_;
         auto& age = person.age_;
+
+        // Early return if you are older than max age.
         const auto age_exceeds_max_age = age > params.max_age;
         if (age_exceeds_max_age) {
           return kEXIT_INDIVIDUAL_DIES;
@@ -522,9 +522,6 @@ RealType one_step_fn::operator()(RealType t, RealType dt,
                    lambda = eir * X * zeta;
         const auto [isIndividualDead, c] =
             UpdateState(state, params, lambda, t, dt);
-
-        // Update human to mosquito FOI
-        // foi_human_to_mosquito += zeta * X * c;
 
         // Does the individual contribute to maternal immunity - we do not have
         // to worry about a person dying after we deem that they are capable of
@@ -540,11 +537,10 @@ RealType one_step_fn::operator()(RealType t, RealType dt,
 
         // The individual is dead they cannot contribute from here on out
         // if an individual is to die this timestep than they cannot be a
-        // birthing
-        // person on the next time step, nor can their replacement (they will be
-        // aged zero)
+        // birthing person on the next time step, nor can their replacement
+        // (they will be aged zero)
         if (isIndividualDead) {
-          return isIndividualDead;
+          return kEXIT_INDIVIDUAL_DIES;
         }
 
         // Update all details in individual that is not status - includes
@@ -563,7 +559,11 @@ RealType one_step_fn::operator()(RealType t, RealType dt,
                              params.exp_rate_dt_clinical_immunity,
                              params.exp_rate_dt_maternal_immunity, age,
                              params.end_maternal_immunity);
-        return isIndividualDead;
+
+        // Log the current status of the individual for outputting.
+        ++log_data[state.current_];
+
+        return kEXIT_INDIVIDUAL_LIVES;
       });
   population.erase(erase_it, population.end());
 
@@ -596,15 +596,17 @@ RealType one_step_fn::operator()(RealType t, RealType dt,
         params.proportion_maternal_immunity * clinical_immunity, zeta, rho,
         age_0);
     cacheable_omega += population.back().status_.getOmega();
+
+    // Log the current status of the individual for outputting.
+    ++log_data[population.back().status_.current_];
   }
 
-  // Time output.
-  const auto tout = t + dt;
-
+  // Output information
+  t += dt;
   // Store cached values and data required to confirm validity of the cache
-  kcached_data.emplace(cacheable_omega, tout);
-
-  return tout;
+  kcached_data.emplace(cacheable_omega, t);
+  // return tout;
+  return log_data;
 };
 }  // namespace white
 }  // namespace vivax
