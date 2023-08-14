@@ -5,11 +5,10 @@ namespace plasx {
 // defined even on 64 bit.
 #ifdef _WIN32
 #include <chrono>
-std::default_random_engine generator(
+std::mt19937 generator(
     std::chrono::system_clock::now().time_since_epoch().count());
 #else
-static std::random_device rd;
-std::default_random_engine generator(rd());
+std::mt19937 generator(std::random_device{}());
 #endif
 
 std::uniform_real_distribution<double> genunf_std(0.0, 1.0);
