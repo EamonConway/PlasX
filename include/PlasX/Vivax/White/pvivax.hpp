@@ -130,6 +130,15 @@ class PVivax {
    */
   Status current_;
 
+  struct PrivateData {
+    RealType time_refractory_period_over;
+    InfectionScheduler infection_queue;
+  };
+
+  PrivateData copyPrivateData() {
+    return {time_refractory_period_over_, infection_queue_};
+  };
+
  private:
   RealType parasite_immunity_, boosts_parasite_immunity_;
   RealType clinical_immunity_, boosts_clinical_immunity_;
