@@ -4,20 +4,26 @@
 
 #include "PlasX/types.hpp"
 namespace plasx {
-// The simulation function
-template <class OneStepFunction, class... OneStepArgs>
-RealType simulation(const RealType t0, const RealType t1, const RealType dt,
-                    OneStepFunction&& one_step,
-                    OneStepArgs&&... function_args) {
-  // Check that the supplied OneStepFunction is invocable with the appropriate
-  // inputs.
-  static_assert(std::invocable<OneStepFunction, const RealType, const RealType,
-                               OneStepArgs...>);
+template <class Fn, class... Args>
+  requires std::invocable<Fn, RealType&, const RealType, Args...>
+auto simulation(const RealType t0, const RealType t1, const RealType dt,
+                Fn&& one_step, Args&&... function_args) {
   auto t = t0;
+  using OneStepResultType =
+      std::invoke_result_t<Fn, RealType&, const RealType, Args...>;
+  using OutputType =
+      std::pair<std::vector<RealType>, std::vector<OneStepResultType>>;
+
+  // Create the empty output
+  auto output_value = OutputType{};
   while (t < t1) {
-    t = one_step(t, dt, std::forward<OneStepArgs>(function_args)...);
+    // Do we want one_step to update t?
+    auto output = one_step(t, dt, std::forward<Args>(function_args)...);
+    // We can add a check to determine if we want to log this timestep or not.
+    output_value.first.push_back(t);
+    output_value.second.push_back(output);
   }
-  return t;
+  return output_value;
 }
 }  // namespace plasx
 #endif
