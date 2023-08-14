@@ -137,6 +137,23 @@ class PVivax {
     return {time_refractory_period_over_, infection_queue_};
   };
 
+  struct CompressedData {
+    float zeta, parasite_immunity, clinical_immunity,
+        maternal_parasite_immunity, maternal_clinical_immunity;
+    u_int32_t nhyp;
+    Status state;
+  };
+
+  [[gnu::used]] CompressedData compressedOutput() const {
+    return {static_cast<float>(zeta_),
+            static_cast<float>(parasite_immunity_),
+            static_cast<float>(clinical_immunity_),
+            static_cast<float>(maternal_parasite_immunity_),
+            static_cast<float>(maternal_clinical_immunity_),
+            static_cast<u_int32_t>(num_hypnozoites_),
+            current_};
+  }
+
  private:
   RealType parasite_immunity_, boosts_parasite_immunity_;
   RealType clinical_immunity_, boosts_clinical_immunity_;
