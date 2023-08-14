@@ -20,6 +20,8 @@
  * @copyright Copyright (c) 2023
  *
  */
+#include <type_traits>
+
 #include "PlasX/Vivax/White/parameters.hpp"
 #include "PlasX/Vivax/White/pvivax.hpp"
 #include "PlasX/individual.hpp"
@@ -49,17 +51,10 @@ struct one_step_fn {
       const Parameters& params, RealType eir) const;
 
   template <class EirFunction>
+    requires std::is_invocable_r_v<RealType, EirFunction, const RealType>
   std::unordered_map<Status, int> operator()(
       RealType& t, RealType dt, std::vector<Individual<PVivax>>& population,
       const Parameters& params, EirFunction eir_func) const {
-    // Ensure that eir is invocable.
-    static_assert(std::invocable<EirFunction, RealType>,
-                  "EirFunction is not invocable with plasx::RealType.");
-    // Check that the type is convertible to real type.
-    static_assert(
-        std::is_convertible_v<decltype(eir_func(t)), RealType>,
-        "EirFunction must have a return type convertible to plasx::RealType");
-
     RealType eir = eir_func(t);
     return operator()(t, dt, population, params, eir);
   };
