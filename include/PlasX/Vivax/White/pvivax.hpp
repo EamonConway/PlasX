@@ -96,8 +96,6 @@ class PVivax {
   void trackImmunityBoosts(const RealType t,
                            const RealType refractory_period) noexcept;
 
-  void update(const RealType dt);
-
   void updateImmunity(const RealType dt,
                       const RealType exp_rate_dt_parasite_immunity,
                       const RealType exp_rate_dt_clinical_immunity,
