@@ -1,6 +1,10 @@
 {
-  "eir":27.3972602739726,
+  "num_people": 2000,
+  "eir": 2.73972602739726,
   "time_step": 1.0,
+  "delay": 10.0,
+  "min_birth_age": 6570.0,
+  "max_birth_age": 14600.0,
   "life_expectancy": 8212.5,
   "max_age": 29200.0,
   "time_to_relapse": 41.0,

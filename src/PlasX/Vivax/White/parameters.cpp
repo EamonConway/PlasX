@@ -3,8 +3,12 @@ namespace plasx {
 namespace vivax {
 namespace white {
 Parameters::Parameters(const nlohmann::json& data)
-    : eir(data.at("eir").get<double>()),
+    : num_people(data.at("num_people").get<int>()),
+      eir(data.at("eir").get<double>()),
       time_step(data.at("time_step").get<double>()),
+      delay(data.at("delay").get<double>()),
+      min_birth_age(data.at("min_birth_age").get<double>()),
+      max_birth_age(data.at("max_birth_age").get<double>()),
       mu_d(1.0 / data.at("life_expectancy").get<double>()),
       f(1.0 / data.at("time_to_relapse").get<double>()),
       gamma(1.0 / data.at("time_to_clear_hypnozoite").get<double>()),
@@ -46,6 +50,12 @@ Parameters::Parameters(const nlohmann::json& data)
       biting_rate_log_sd(data.at("biting_rate_log_sd").get<double>()),
       max_age(data.at("max_age").get<double>()) {
   // Run all required checks for parameter constraints.
+  if (time_step <= 0.0) {
+    throw std::runtime_error(
+        "Error in " + std::string(__func__) + ": " + std::string(__FILE__) +
+        " at line " + std::to_string(__LINE__) +
+        ". Please specify a timestep that is greater that 0.0");
+  }
 }
 }  // namespace white
 }  // namespace vivax

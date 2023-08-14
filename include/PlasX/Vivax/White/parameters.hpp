@@ -23,8 +23,121 @@ class Parameters {
    * @param filename
    */
   Parameters(const nlohmann::json &filename);
+
+  struct Compressed {
+    double eir;
+    double time_step;
+
+    //
+    double delay;
+    double min_birth_age;
+    double max_birth_age;
+
+    // Death rate (1/average age)
+    double mu_d;
+
+    // Hypnozoite parameters.
+    double f;
+    double gamma;
+
+    // Constant parameters. Will not change in a simulation.
+    double age_0;
+    double rho;
+    double r_P;
+    double r_T;
+    double r_D;
+    double r_LM;
+
+    // Infection parameters - splitting.
+    double phiLM_min, phiLM_50, phiLM_max, kappa_LM;
+    double phiD_min, phiD_50, phiD_max, kappa_D;
+
+    // Treatment parameter
+    double chiT;
+
+    // PCR duration parameters.
+    double dPCR_min, dPCR_max, dPCR_50, kappa_PCR;
+
+    // Bite parameters.
+    double b;
+
+    // Immunity decay rates.
+    double exp_rate_dt_parasite_immunity, exp_rate_dt_clinical_immunity,
+        exp_rate_dt_maternal_immunity;
+
+    // Maternal immunity.
+    double proportion_maternal_immunity;
+    double end_maternal_immunity;
+
+    // Refractory
+    double refractory_period;
+
+    double c_ILM;
+    double c_IPCR;
+    double c_ID;
+    double c_T;
+
+    // Bite heterogeneity
+    double biting_rate_log_mean;
+    double biting_rate_log_sd;
+
+    // Maximum age parameters.
+    double max_age;
+  };
+
+  Compressed compressedOutput() const {
+    return {eir,
+            time_step,
+            delay,
+            min_birth_age,
+            max_birth_age,
+            mu_d,
+            f,
+            gamma,
+            age_0,
+            rho,
+            r_P,
+            r_T,
+            r_D,
+            r_LM,
+            phiLM_min,
+            phiLM_50,
+            phiLM_max,
+            kappa_LM,
+            phiD_min,
+            phiD_50,
+            phiD_max,
+            kappa_D,
+            chiT,
+            dPCR_min,
+            dPCR_max,
+            dPCR_50,
+            kappa_PCR,
+            b,
+            exp_rate_dt_parasite_immunity,
+            exp_rate_dt_clinical_immunity,
+            exp_rate_dt_maternal_immunity,
+            proportion_maternal_immunity,
+            end_maternal_immunity,
+            refractory_period,
+            c_ILM,
+            c_IPCR,
+            c_ID,
+            c_T,
+            biting_rate_log_mean,
+            biting_rate_log_sd,
+            max_age};
+  }
+
+  int num_people;
   double eir;
   double time_step;
+
+  //
+  double delay;
+  double min_birth_age;
+  double max_birth_age;
+
   // Death rate (1/average age)
   double mu_d;
 
@@ -54,7 +167,8 @@ class Parameters {
   double b;
 
   // Immunity decay rates.
-  double exp_rate_dt_parasite_immunity, exp_rate_dt_clinical_immunity, exp_rate_dt_maternal_immunity;
+  double exp_rate_dt_parasite_immunity, exp_rate_dt_clinical_immunity,
+      exp_rate_dt_maternal_immunity;
 
   // Maternal immunity.
   double proportion_maternal_immunity;
@@ -71,8 +185,8 @@ class Parameters {
   // Bite heterogeneity
   double biting_rate_log_mean;
   double biting_rate_log_sd;
-  
-  // Maximum age parameters. 
+
+  // Maximum age parameters.
   double max_age;
 };
 }  // namespace white
