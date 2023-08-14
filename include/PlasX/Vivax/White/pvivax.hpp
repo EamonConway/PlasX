@@ -76,6 +76,9 @@ class PVivax {
   bool updateInfection(const RealType t, const RealType u_par);
 
   SizeType& getNumHypnozoites() noexcept { return num_hypnozoites_; }
+  const SizeType& getNumHypnozoites() const noexcept {
+    return num_hypnozoites_;
+  }
 
   /**
    * @brief Clear the queue of infections that will occur. This is only called
