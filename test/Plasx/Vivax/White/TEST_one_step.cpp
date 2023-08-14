@@ -9,9 +9,14 @@ using namespace plasx;
 namespace pvibm = plasx::vivax::white;
 
 // Json string literal for testing purposes.
-auto json_file = R"({
+namespace {
+constexpr auto json_file = R"({
+"num_people": 2000,
 "eir":1.0,
 "time_step":1.0,
+"delay":10.0,
+"min_birth_age": 6570.0,
+"max_birth_age": 14600.0,
 "life_expectancy": 4380.0,
 "time_to_relapse": 41.0,
 "time_to_clear_hypnozoite": 383.0,
@@ -49,21 +54,23 @@ auto json_file = R"({
 "biting_rate_log_sd": 1.10905365064,
 "max_age": 36500.0
 })";
+}
 
 TEST(one_step, timestep_update) {
   auto params_json = nlohmann::json::parse(json_file);
   pvibm::Parameters params(params_json);
   auto t0 = 0.0;
+  auto t = t0;
   auto dt = 1.0;
   std::vector<Individual<pvibm::PVivax>> population;
   population.emplace_back(103.0_yrs, pvibm::Status::S, 0.0, 0.0, 0.0, 0.0, 1.0);
-  auto t = pvibm::one_step(t0, dt, population, params, 1.0);
+  [[maybe_unused]] auto return_value =
+      pvibm::one_step(t, dt, population, params, 1.0);
   EXPECT_EQ(t, t0 + dt);
 
   // Run a second timestep for test.
-  t0 = t;
-  t = pvibm::one_step(t0, dt, population, params, 1.0);
-  EXPECT_EQ(t, t0 + dt);
+  return_value = pvibm::one_step(t, dt, population, params, 1.0);
+  EXPECT_EQ(t, t0 + 2 * dt);
 };
 
 TEST(one_step, max_age_death) {
@@ -123,3 +130,25 @@ TEST(one_step, randomness) {
     population.emplace_back(0.0, pvibm::Status::S, 0.0, 0.0, 0.0, 0.0, 0.0);
   }
 };
+
+TEST(one_step, zero_eir) {
+  auto gen_age = std::exponential_distribution<RealType>(1.0 / 25.0);
+  auto params_json = nlohmann::json::parse(json_file);
+  params_json.at("life_expectancy") = std::numeric_limits<double>::max();
+  pvibm::Parameters params(params_json);
+  auto t0 = 0.0;
+  auto dt = 150.0;
+  std::vector<Individual<pvibm::PVivax>> population;
+  for (auto i = 0; i < 100; ++i) {
+    population.emplace_back(gen_age(generator), pvibm::Status::S, 0.0, 0.0, 0.0,
+                            0.0, 1.0);
+  }
+  auto output = pvibm::one_step(t0, dt, population, params, 0.0);
+  for (auto [state, value] : output) {
+    if (state == pvibm::Status::S) {
+      EXPECT_EQ(value, population.size());
+    } else {
+      EXPECT_EQ(value, 0);
+    }
+  }
+}
