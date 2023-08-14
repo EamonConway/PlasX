@@ -63,7 +63,7 @@ class PVivax {
    *
    */
   void queueInfection(const RealType t, const RealType lambda,
-                      const RealType total_prob);
+                      const RealType total_prob, const RealType delay);
 
   /**
    * @brief Check if an infection event has to occur.

@@ -20,8 +20,6 @@ std::ostream& operator<<(std::ostream& os, const PVivax& data) {
   return os;
 }
 
-const auto delay = 10.0;  // Become part of parameters?
-
 // Birth Constructor.
 PVivax::PVivax(const RealType age, const Status& status,
                const RealType maternal_parasite_immunity,
@@ -51,7 +49,7 @@ PVivax::PVivax(const RealType age, const Status& status,
       num_hypnozoites_(n_hypnozoites){};
 
 void PVivax::queueInfection(const RealType t, const RealType lambda,
-                            const RealType total_prob) {
+                            const RealType total_prob, const RealType delay) {
   auto num_new_hypnozoites = 0;
   auto bitten = genunf_std(generator) < lambda / total_prob;
   if (bitten) {
