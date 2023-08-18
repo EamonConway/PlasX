@@ -22,7 +22,7 @@ class Parameters {
    *
    * @param filename
    */
-  Parameters(const nlohmann::json &filename);
+  Parameters(const nlohmann::json &json);
 
   struct Compressed {
     double eir;
