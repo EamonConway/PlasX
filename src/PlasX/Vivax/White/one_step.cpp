@@ -14,7 +14,6 @@
 #include <utility>
 
 #include "PlasX/Vivax/White/individual_update.hpp"
-#include "PlasX/population_update.hpp"
 #include "PlasX/random.hpp"
 #include "PlasX/udl.hpp"
 // Anonymous namespace for cacheable data and functions - they
