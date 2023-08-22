@@ -32,6 +32,10 @@ class Individual {
   Individual(double age, auto&&... dargs)
       : age_(age), status_(age, std::forward<decltype(dargs)>(dargs)...){};
 
+  bool isBirthingCapable(double min_age, double max_age) {
+    return age_ >= min_age && age_ <= max_age;
+  }
+
   RealType age_;
   DiseaseStatus status_;
 };
