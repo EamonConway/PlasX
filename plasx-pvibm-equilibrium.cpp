@@ -1,12 +1,6 @@
-#include <algorithm>
-#include <chrono>
-#include <concepts>
 #include <fstream>
 #include <iostream>
 #include <random>
-#include <tuple>
-#include <type_traits>
-#include <utility>
 
 #include "PlasX/Vivax/white.hpp"
 #include "PlasX/random.hpp"
