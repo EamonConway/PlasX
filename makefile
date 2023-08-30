@@ -1,11 +1,11 @@
-# Define flags for compilation. 
-CXX = g++  -Wall -Wpedantic -Werror -flto -O3
+# Define flags for compilation.
+CXX = g++  -Wall -Wpedantic -Werror -flto -fPIC
 INCLUDE = include
-NLOHMANN = ../
+NLOHMANN = ../json/single_include/
 ODEPP = ../odeplusplus/include
-PYBIND = /Users/conway.e/repos/pybind11/include
+PYBIND = ../pybind11/include
 CPPFLAGS = -std=c++2a -I$(INCLUDE) -I$(NLOHMANN) -I$(ODEPP)
-CFLAGS = 
+CFLAGS =
 PY_OBJ = pybuild
 OBJ = build
 SRC = src
@@ -19,16 +19,17 @@ TEST_OBJECTS := $(patsubst $(TEST)/%.cpp, $(OBJ)/%.o, $(TEST_SOURCES))
 PYBIND_SRC := $(shell find $(PY_API) -name "*py*.cpp")
 PYBIND_OBJ := $(patsubst $(PY_API)/%.cpp, $(PY_OBJ)/%.o, $(PYBIND_SRC))
 PYTHON_H := $(shell python3-config --includes)
-PYTHON_EXTENSION := $(shell python3-config --extension-suffix) 
+PYTHON_EXTENSION := $(shell python3-config --extension-suffix)
 
 python-library: pvibm-mosquito objects pybind_objects
 	@mkdir -p pybin
 	@echo $(PYBIND_OBJ)
-	g++ -O3 -Wall -shared -std=c++2a -undefined dynamic_lookup $(python3-config --includes) -I$(PYBIND) -o pybin/pyPlasX$(PYTHON_EXTENSION) $(PYBIND_OBJ) $(OBJECTS)
+	g++ -O3 -Wall -shared -std=c++2a $(python3-config --includes) -I$(PYBIND) -o pybin/pyPlasX$(PYTHON_EXTENSION) $(PYBIND_OBJ) $(OBJECTS)
+	#g++ -O3 -Wall -shared -std=c++2a -undefined dynamic_lookup $(python3-config --includes) -I$(PYBIND) -o pybin/pyPlasX$(PYTHON_EXTENSION) $(PYBIND_OBJ) $(OBJECTS)
 
 pvibm-mosquito: pvibm-equilibrium tests objects
 	@mkdir -p bin
-	$(CXX) $(CPPFLAGS) -o bin/plasx-pvibm-mosquito main_mosquito.cpp $(OBJECTS)
+	#$(CXX) $(CPPFLAGS) -o bin/plasx-pvibm-mosquito main_mosquito.cpp $(OBJECTS)
 
 pvibm-equilibrium: tests objects
 	@mkdir -p bin
@@ -42,7 +43,7 @@ objects: $(OBJECTS)
 test_objects: $(TEST_OBJECTS)
 pybind_objects: $(PYBIND_OBJ)
 
-clean: 
+clean:
 	$(RM) -r -f html
 	$(RM) -r -f latex
 	$(RM) -r -f build/
@@ -50,7 +51,7 @@ clean:
 	$(RM) -r -f pybin/
 	$(RM) -r -f bin/
 
-# Makefile rules for compilation. 
+# Makefile rules for compilation.
 $(OBJ)/%.o: $(SRC)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) -c $(CPPFLAGS) $< -o $@
