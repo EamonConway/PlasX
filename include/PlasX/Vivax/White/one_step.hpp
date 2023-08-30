@@ -1,7 +1,7 @@
 /**
  * @file one_step.hpp
  * @author Eamon Conway (conway.e@wehi.edu.au)
- * @brief
+ * @brief Source file for running a single time step of the equilibrium model.
  * @version 0.1
  * @date 2023-06-16
  *
@@ -38,12 +38,12 @@ namespace white {
  * in the same time, the cache would not be recognised as invalid.
  * It is plausible that in the future, we identify if the cache is valid using a
  * hash.
- * @param t
- * @param dt
- * @param population
- * @param params
- * @param eir
- * @return RealType
+ * @param t The current time of the simulation (days).
+ * @param dt The size of the time step (days).
+ * @param population Vector of all people in the population.
+ * @param params Parameter class.
+ * @param eir Current Entomological Inocculation Rate (assumed constant for time step).
+ * @return RealType The current time after the time step has taken place.
  */
 struct one_step_fn {
   std::unordered_map<Status, int> operator()(
@@ -57,7 +57,7 @@ struct one_step_fn {
       const Parameters& params, EirFunction eir_func) const {
     RealType eir = eir_func(t);
     return operator()(t, dt, population, params, eir);
-  };
+  }
 };
 
 inline constexpr one_step_fn one_step{};
