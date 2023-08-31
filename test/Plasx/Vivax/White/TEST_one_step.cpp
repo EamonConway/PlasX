@@ -129,6 +129,7 @@ TEST(one_step, randomness) {
   for (auto i = 0; i < 100; ++i) {
     population.emplace_back(0.0, pvibm::Status::S, 0.0, 0.0, 0.0, 0.0, 0.0);
   }
+  FAIL();
 };
 
 TEST(one_step, zero_eir) {
@@ -152,3 +153,22 @@ TEST(one_step, zero_eir) {
     }
   }
 }
+
+TEST(one_step, all_death) {
+  // Load parameter details and ensure death.
+  auto params_json = nlohmann::json::parse(json_file);
+  // params_json.at("life_expectancy") = std::numeric_limits<RealType>::min();
+  pvibm::Parameters params(params_json);
+  params.mu_d = std::numeric_limits<RealType>::max();
+  auto t0 = 0.0;
+  auto dt = 150.0;
+
+  std::vector<Individual<pvibm::PVivax>> population;
+  for (auto i = 0; i < 100; ++i) {
+    population.emplace_back(0.0, pvibm::Status::S, 0.0, 0.0, 0.0, 0.0, 0.0);
+  }
+  auto output = pvibm::one_step(t0, dt, population, params, 0.0);
+  for (auto person : population) {
+    EXPECT_EQ(person.age_, 0.0);
+  }
+};
