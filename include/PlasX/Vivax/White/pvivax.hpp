@@ -87,15 +87,6 @@ class PVivax {
    */
   void clearInfectionQueue() noexcept;
 
-  /**
-   * @brief
-   *
-   * @param t
-   * @param refractory_period
-   */
-  void trackImmunityBoosts(const RealType t,
-                           const RealType refractory_period) noexcept;
-
   void updateImmunity(const RealType dt,
                       const RealType exp_rate_dt_parasite_immunity,
                       const RealType exp_rate_dt_clinical_immunity,
@@ -155,6 +146,15 @@ class PVivax {
   }
 
  private:
+  /**
+   * @brief
+   *
+   * @param t
+   * @param refractory_period
+   */
+  void trackImmunityBoosts(const RealType t,
+                           const RealType refractory_period) noexcept;
+
   RealType parasite_immunity_, boosts_parasite_immunity_;
   RealType clinical_immunity_, boosts_clinical_immunity_;
   RealType maternal_parasite_immunity_;
