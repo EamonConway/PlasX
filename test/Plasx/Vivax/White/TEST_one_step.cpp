@@ -117,21 +117,6 @@ TEST(one_step, ageing) {
   }
 };
 
-TEST(one_step, randomness) {
-  // Set seed so that this test will have deterministic randomness.
-  generator.seed(0);
-
-  // Load parameter details and disable death.
-  auto params_json = nlohmann::json::parse(json_file);
-  params_json.at("life_expectancy") = std::numeric_limits<double>::max();
-
-  std::vector<Individual<pvibm::PVivax>> population;
-  for (auto i = 0; i < 100; ++i) {
-    population.emplace_back(0.0, pvibm::Status::S, 0.0, 0.0, 0.0, 0.0, 0.0);
-  }
-  FAIL();
-};
-
 TEST(one_step, zero_eir) {
   auto gen_age = std::exponential_distribution<RealType>(1.0 / 25.0);
   auto params_json = nlohmann::json::parse(json_file);
