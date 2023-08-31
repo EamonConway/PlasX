@@ -1,7 +1,10 @@
-# Binary files. 
+# Binary files.
 bin
 
-#Short code test. 
+# Clangd Files.
+compile_commands.json
+
+#Short code test.
 example**
 
 # Doxygen files.
