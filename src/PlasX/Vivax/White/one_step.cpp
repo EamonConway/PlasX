@@ -119,9 +119,9 @@ std::unordered_map<Status, int> one_step_fn::operator()(
       {Status::I_D, 0}, {Status::T, 0},     {Status::P, 0}};
 
   // Birthing updaters.
-  const auto& maternal_immunity = kcached_data.value().maternal_immunity_;
   // Birth an equal amount of individuals to those that died.
   // We need to randomly determine who the new individual's birthing person is.
+  const auto& maternal_immunity = kcached_data.value().maternal_immunity_;
   auto gen_birthing_person =
       std::uniform_int_distribution<SizeType>(0, maternal_immunity.size() - 1);
   auto gen_zeta = std::lognormal_distribution<RealType>(
