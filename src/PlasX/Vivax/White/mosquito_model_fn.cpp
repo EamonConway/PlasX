@@ -1,13 +1,10 @@
 #include "PlasX/Vivax/White/mosquito.hpp"
 
-#include <array>
-#include <queue>
-
 #include "PlasX/types.hpp"
 namespace plasx {
 namespace vivax {
 namespace white {
-std::array<RealType, 6> MosquitoModel::operator()(
+std::array<RealType, 6> mosquito_model_fn::operator()(
     const RealType t, const std::array<RealType, 6>& state,
     const RealType lambda, const RealType kappa,
     const MosquitoParameters& params) const {
@@ -15,7 +12,7 @@ std::array<RealType, 6> MosquitoModel::operator()(
        &mu_l0 = params.mu_l0, &gamma = params.gamma, &dl = params.dl,
        &dp = params.dp, &mu_p = params.mu_p, &mu_m = params.mu_m,
        &mu_tau = params.mu_tau;
-  // State reference to easier to interpret.
+  // Rename states so that it is easier to read the below equations.
   auto &Le = state[0], &Ll = state[1], &Lp = state[2], &S = state[3],
        &E = state[4], &I = state[5];
 
