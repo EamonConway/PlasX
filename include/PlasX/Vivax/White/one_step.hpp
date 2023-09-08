@@ -46,18 +46,9 @@ namespace white {
  * @return RealType The current time after the time step has taken place.
  */
 struct one_step_fn {
-  std::unordered_map<Status, int> operator()(
-      RealType& t, RealType dt, std::vector<Individual<PVivax>>& population,
-      const Parameters& params, RealType eir) const;
-
-  template <class EirFunction>
-    requires std::is_invocable_r_v<RealType, EirFunction, const RealType>
-  std::unordered_map<Status, int> operator()(
-      RealType& t, RealType dt, std::vector<Individual<PVivax>>& population,
-      const Parameters& params, EirFunction eir_func) const {
-    RealType eir = eir_func(t);
-    return operator()(t, dt, population, params, eir);
-  }
+std::unordered_map<Status, int> operator()(
+    RealType& t, RealType dt, RealType eir, std::vector<Individual<PVivax>>& population,
+    const Parameters& params) const ;
 };
 
 inline constexpr one_step_fn one_step{};

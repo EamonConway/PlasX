@@ -1,11 +1,6 @@
-/**
- * @file one_step.cpp
- * @author Eamon Conway (conway.e@wehi.edu.au)
+/** @file one_step.cpp @author Eamon Conway (conway.e@wehi.edu.au)
  * @brief
- * @version 0.1
- * @date 2023-06-23
- *
- * @copyright Copyright (c) 2023
+ * @version 0.1 @date 2023-06-23 @copyright Copyright (c) 2023
  *
  */
 #include "PlasX/Vivax/White/one_step.hpp"
@@ -16,17 +11,6 @@
 #include "PlasX/Vivax/White/individual_update.hpp"
 #include "PlasX/random.hpp"
 #include "PlasX/udl.hpp"
-// Anonymous namespace for cacheable data and functions - they
-// will not be accessible from other translation  units as they should not be
-// used anywhere but here.
-
-//  - note the discrepancy with
-// eir and zeta - by taking zeta from a lognormal distribution, the mean
-// lambda is actually higher than what was expected. It is stated that
-// the mean of the lognormal distribution is 0, which means that
-// mean(zeta) should be one. This is not the case, the mean zeta is
-// exp(mu + sigma^2/2), which seems to be around 1.8.
-// mean(log(zeta))=0,but that does not dictate that mean(zeta) = 1.0.
 
 namespace {
 using RealType = plasx::RealType;
@@ -44,9 +28,9 @@ struct MaternalImmunity {
 class CachedVariables {
  public:
   CachedVariables(std::vector<MaternalImmunity>&& maternal_immunity,
-                  RealType omega, RealType time)
+                  RealType omega_zeta, RealType time)
       : maternal_immunity_(std::move(maternal_immunity)),
-        omega_(omega),
+        omega_zeta_(omega_zeta),
         valid_time_(time) {
     // If the maternal_immunity_store is empty, we add zero to it before caching
     // the next timestep. This is the edge case of no birthing persons being
@@ -58,7 +42,7 @@ class CachedVariables {
     }
   };
   std::vector<MaternalImmunity> maternal_immunity_;
-  RealType omega_;
+  RealType omega_zeta_;
 
   bool isCacheInvalid(RealType t) { return t != valid_time_; }
 
@@ -72,24 +56,25 @@ void calculateRequiredCache(const std::vector<Person>& population, RealType rho,
                             RealType age_0, RealType t) {
   // We need to get the force of infection from mosquito to humans, then we
   // need to calculate the age normalisation constant.
-  auto cacheable_omega = 0.0;
+  auto cacheable_omega_zeta = 0.0;
   std::vector<MaternalImmunity> maternal_immunity;
   for (const auto& person : population) {
-    cacheable_omega += person.status_.getOmega();
+    cacheable_omega_zeta +=
+        person.status_.getOmega() * person.status_.getZeta();
     maternal_immunity.emplace_back(person.status_.getParasiteImmunity(),
                                    person.status_.getClinicalImmunity());
   }
-  kcached_data.emplace(std::move(maternal_immunity), cacheable_omega, t);
+  kcached_data.emplace(std::move(maternal_immunity), cacheable_omega_zeta, t);
 };
 }  // namespace
 
 namespace plasx {
 namespace vivax {
 namespace white {
-// Control flow of a single step of the simulation.
 std::unordered_map<Status, int> one_step_fn::operator()(
-    RealType& t, RealType dt, std::vector<Individual<PVivax>>& population,
-    const Parameters& params, RealType eir) const {
+    RealType& t, RealType dt, RealType eir,
+    std::vector<Individual<PVivax>>& population,
+    const Parameters& params) const {
   // We need the value for omega within this timestep, however, it requires
   // knowing information over the whole population. As such we calculate these
   // details during the previous timestep. It is not guaranteed that there has
@@ -106,10 +91,12 @@ std::unordered_map<Status, int> one_step_fn::operator()(
 
   // Get biting parameters to calculate Lambda
   const auto rho = params.rho, age_0 = params.age_0;
-  const auto omega = kcached_data.value().omega_, eir_omega = eir / omega;
+  const auto total_omega_zeta = kcached_data.value().omega_zeta_,
+             eir_omega_zeta = eir / total_omega_zeta;
 
   // Variables to be calculated during loop over individuals
-  auto cacheable_omega = 0.0;
+  auto total_force_of_infection_mosquitoes = 0.0;
+  auto cacheable_omega_zeta = 0.0;
   std::vector<MaternalImmunity> cacheable_maternal_immunity;
   cacheable_maternal_immunity.reserve(population.size() / 4);
 
@@ -131,8 +118,9 @@ std::unordered_map<Status, int> one_step_fn::operator()(
   // be of use in the next time step
   std::for_each(
       population.begin(), population.end(), [&](Person& person) -> void {
-        auto [individual_dies, c] =
-            IndividualOneStep(t, dt, person, params, eir_omega);
+        auto [individual_dies, individual_foi_mosquitoes] =
+            IndividualOneStep(t, dt, person, params, eir_omega_zeta);
+        total_force_of_infection_mosquitoes += individual_foi_mosquitoes;
 
         // If the individual dies, we want to replace them with a
         // newborn - they will be born with immunity taken from the
@@ -164,7 +152,8 @@ std::unordered_map<Status, int> one_step_fn::operator()(
               person.status_.getClinicalImmunity());
         }
         // Omega caching.
-        cacheable_omega += person.status_.getOmega();
+        cacheable_omega_zeta +=
+            person.status_.getOmega() * person.status_.getZeta();
         // Log the current status of the individual for
         // outputting.
         ++data_logger[person.status_.current_];
@@ -173,7 +162,8 @@ std::unordered_map<Status, int> one_step_fn::operator()(
   // Update timestep
   t += dt;
   // Store cached values and data required to confirm validity of the cache
-  kcached_data.emplace(std::move(cacheable_maternal_immunity), cacheable_omega,
+  kcached_data.emplace(std::move(cacheable_maternal_immunity),
+                       cacheable_omega_zeta,
                        t);  // Cache latest timestep for validity.
   return data_logger;
 };
