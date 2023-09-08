@@ -411,7 +411,7 @@ IndividualOneStepReturnType IndividualOneStep(const RealType t,
                                               const RealType dt,
                                               Individual<PVivax>& person,
                                               const Parameters& params,
-                                              const RealType eir_omega) {
+                                              const RealType scaled_eir) {
   // One step the individual - but they must not exceed maximum age.
   auto& state = person.status_;
   auto& age = person.age_;
@@ -424,7 +424,7 @@ IndividualOneStepReturnType IndividualOneStep(const RealType t,
 
   // Calculate the individual level force of infection and update state.
   const auto individual_omega = state.getOmega(), zeta = state.getZeta(),
-             lambda = eir_omega * individual_omega * zeta;
+             lambda = scaled_eir * individual_omega * zeta;
   const auto state_output = UpdateState(state, params, lambda, t, dt);
 
   // Update remaining details - we are also updating individuals that will die.

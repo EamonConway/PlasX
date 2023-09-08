@@ -16,7 +16,7 @@ IndividualOneStepReturnType IndividualOneStep(const RealType t,
                                               const RealType dt,
                                               Individual<PVivax>& person,
                                               const Parameters& params,
-                                              const RealType eir_omega);
+                                              const RealType scaled_eir);
 }  // namespace white
 }  // namespace vivax
 }  // namespace plasx
