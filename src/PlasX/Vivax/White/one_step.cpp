@@ -95,7 +95,7 @@ std::unordered_map<Status, int> one_step_fn::operator()(
              eir_omega_zeta = eir / total_omega_zeta;
 
   // Variables to be calculated during loop over individuals
-  auto total_force_of_infection_mosquitoes = 0.0;
+  auto total_foi_human_to_mosquitoes = 0.0;
   auto cacheable_omega_zeta = 0.0;
   std::vector<MaternalImmunity> cacheable_maternal_immunity;
   cacheable_maternal_immunity.reserve(population.size() / 4);
@@ -120,7 +120,7 @@ std::unordered_map<Status, int> one_step_fn::operator()(
       population.begin(), population.end(), [&](Person& person) -> void {
         auto [individual_dies, individual_foi_mosquitoes] =
             IndividualOneStep(t, dt, person, params, eir_omega_zeta);
-        total_force_of_infection_mosquitoes += individual_foi_mosquitoes;
+        total_foi_human_to_mosquitoes += individual_foi_mosquitoes;
 
         // If the individual dies, we want to replace them with a
         // newborn - they will be born with immunity taken from the
