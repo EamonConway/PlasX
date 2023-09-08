@@ -48,7 +48,7 @@ namespace white {
  */
 struct one_step_fn {
   std::unordered_map<Status, int> operator()(
-      RealType& t, RealType dt, RealType total_infectious_bites_per_time,
+      RealType& t, RealType dt, RealType population_eir,
       std::vector<Individual<PVivax>>& population,
       const Parameters& params) const;
 };

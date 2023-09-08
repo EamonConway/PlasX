@@ -72,7 +72,7 @@ namespace plasx {
 namespace vivax {
 namespace white {
 std::unordered_map<Status, int> one_step_fn::operator()(
-    RealType& t, RealType dt, RealType eir,
+    RealType& t, RealType dt, RealType population_eir,
     std::vector<Individual<PVivax>>& population,
     const Parameters& params) const {
   // We need the value for omega within this timestep, however, it requires
@@ -90,6 +90,7 @@ std::unordered_map<Status, int> one_step_fn::operator()(
   }
 
   // Get biting parameters to calculate Lambda
+  const auto eir = population_eir / population.size();
   const auto rho = params.rho, age_0 = params.age_0;
   const auto total_omega_zeta = kcached_data.value().omega_zeta_,
              eir_omega_zeta = eir / total_omega_zeta;
