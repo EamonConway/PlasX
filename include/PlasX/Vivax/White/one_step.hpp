@@ -42,13 +42,15 @@ namespace white {
  * @param dt The size of the time step (days).
  * @param population Vector of all people in the population.
  * @param params Parameter class.
- * @param eir Current Entomological Inocculation Rate (assumed constant for time step).
+ * @param eir Current Entomological Inocculation Rate (assumed constant for time
+ * step).
  * @return RealType The current time after the time step has taken place.
  */
 struct one_step_fn {
-std::unordered_map<Status, int> operator()(
-    RealType& t, RealType dt, RealType eir, std::vector<Individual<PVivax>>& population,
-    const Parameters& params) const ;
+  std::unordered_map<Status, int> operator()(
+      RealType& t, RealType dt, RealType total_infectious_bites_per_time,
+      std::vector<Individual<PVivax>>& population,
+      const Parameters& params) const;
 };
 
 inline constexpr one_step_fn one_step{};
