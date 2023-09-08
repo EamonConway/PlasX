@@ -75,6 +75,9 @@ std::unordered_map<Status, int> one_step_fn::operator()(
     RealType& t, RealType dt, RealType population_eir,
     std::vector<Individual<PVivax>>& population,
     const Parameters& params) const {
+  // Parameters for rho and age.
+  const auto &rho = params.rho, &age_0 = params.age_0;
+
   // We need the value for omega within this timestep, however, it requires
   // knowing information over the whole population. As such we calculate these
   // details during the previous timestep. It is not guaranteed that there has
@@ -86,12 +89,11 @@ std::unordered_map<Status, int> one_step_fn::operator()(
   if (cache_needs_calculation) {
     // Recalculate the cache when it is out of date - currently determined by
     // time only.
-    calculateRequiredCache(population, params.rho, params.age_0, t);
+    calculateRequiredCache(population, rho, age_0, t);
   }
 
   // Get biting parameters to calculate Lambda
   const auto eir = population_eir / population.size();
-  const auto rho = params.rho, age_0 = params.age_0;
   const auto total_omega_zeta = kcached_data.value().omega_zeta_,
              eir_omega_zeta = eir / total_omega_zeta;
 
