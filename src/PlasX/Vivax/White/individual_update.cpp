@@ -423,9 +423,10 @@ IndividualOneStepReturnType IndividualOneStep(const RealType t,
   }
 
   // Calculate the individual level force of infection and update state.
-  const auto individual_omega = state.getOmega(), zeta = state.getZeta(),
-             lambda = scaled_eir * individual_omega * zeta;
-  const auto state_output = UpdateState(state, params, lambda, t, dt);
+  const auto individual_omega_zeta = state.getOmega() * state.getZeta(),
+             lambda = scaled_eir * individual_omega_zeta;
+  auto state_output = UpdateState(state, params, lambda, t, dt);
+  state_output.c = state_output.c * individual_omega_zeta;
 
   // Update remaining details - we are also updating individuals that will die.
   age += dt;
