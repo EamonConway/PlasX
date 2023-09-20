@@ -10,62 +10,40 @@ namespace plasx {
 namespace {
 
 // functor
-template<class F>
-struct function_traits
-{
-    private:
-        using call_type = function_traits<decltype(&F::operator())>;
-    public:
-        using return_type = typename call_type::return_type;
-
-        static constexpr std::size_t arity = call_type::arity - 1;
-
-        template <std::size_t N>
-        struct argument
-        {
-            static_assert(N < arity, "error: invalid parameter index.");
-            using type = typename call_type::template argument<N+1>::type;
-        };
+template <class F>
+struct FunctionArgumentCount {
+  static constexpr std::size_t value =
+      FunctionArgumentCount<decltype(&F::operator())>::value - 1;
 };
 // function pointer
 template <class R, class... Args>
-struct function_traits<R (*)(Args...)> : public function_traits<R(Args...)> {};
+struct FunctionArgumentCount<R (*)(Args...)>
+    : public FunctionArgumentCount<R(Args...)> {};
 
 template <class R, class... Args>
-struct function_traits<R(Args...)> {
-  using return_type = R;
-
-  static constexpr std::size_t arity = sizeof...(Args);
-
-  template <std::size_t N>
-  struct argument {
-    static_assert(N < arity, "error: invalid parameter index.");
-    using type = typename std::tuple_element<N, std::tuple<Args...>>::type;
-  };
+struct FunctionArgumentCount<R(Args...)> {
+  static constexpr std::size_t value = sizeof...(Args);
 };
 
 // member function pointer
-template<class C, class R, class... Args>
-struct function_traits<R(C::*)(Args...)> : public function_traits<R(C&,Args...)>
-{};
+template <class C, class R, class... Args>
+struct FunctionArgumentCount<R (C::*)(Args...)>
+    : public FunctionArgumentCount<R(C&, Args...)> {};
 
 // const member function pointer
-template<class C, class R, class... Args>
-struct function_traits<R(C::*)(Args...) const> : public function_traits<R(C&,Args...)>
-{};
+template <class C, class R, class... Args>
+struct FunctionArgumentCount<R (C::*)(Args...) const>
+    : public FunctionArgumentCount<R(C&, Args...)> {};
 
 // member object pointer
-template<class C, class R>
-struct function_traits<R(C::*)> : public function_traits<R(C&)>
-{};
+template <class C, class R>
+struct FunctionArgumentCount<R(C::*)> : public FunctionArgumentCount<R(C&)> {};
 
-template<class F>
-struct function_traits<F&> : public function_traits<F>
-{};
+template <class F>
+struct FunctionArgumentCount<F&> : public FunctionArgumentCount<F> {};
 
-template<class F>
-struct function_traits<F&&> : public function_traits<F>
-{};
+template <class F>
+struct FunctionArgumentCount<F&&> : public FunctionArgumentCount<F> {};
 
 template <unsigned N>
 struct splitHumanMosquitoArguments {
@@ -89,22 +67,6 @@ struct splitHumanMosquitoArguments<0> {
                           std::forward_as_tuple(args...));
   }
 };
-
-template <typename Func>
-struct FunctionArgumentCount{
-    static constexpr std::size_t value = function_traits<Func>::arity;
-};
-//
-//template <typename ReturnType, typename... Args>
-//struct FunctionArgumentCount<ReturnType(Args...)> {
-//  static constexpr std::size_t value = sizeof...(Args);
-//};
-//
-//// Specialization for function pointers
-//template <typename ReturnType, typename... Args>
-//struct FunctionArgumentCount<ReturnType (*)(Args...)> {
-//  static constexpr std::size_t value = sizeof...(Args);
-//};
 }  // namespace
 
 template <typename HumanModelType, typename MosquitoModelType>
