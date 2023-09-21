@@ -16,7 +16,7 @@
 namespace plasx {
 namespace vivax {
 namespace white {
-std::unordered_map<Status, int> one_step_fn::operator()(
+std::pair<std::unordered_map<Status, int>, RealType> one_step_fn::operator()(
     const RealType t, const RealType dt, const RealType population_eir,
     Population& population, const Parameters& params) const {
   // Parameters for rho and age.
@@ -96,7 +96,7 @@ std::unordered_map<Status, int> one_step_fn::operator()(
   population.set_maternal_immunity(std::move(cacheable_maternal_immunity));
   population.total_omega_zeta() = cacheable_omega_zeta;
 
-  return data_logger;
+  return std::make_pair(data_logger, total_foi_human_to_mosquitoes);
 };
 }  // namespace white
 }  // namespace vivax

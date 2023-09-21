@@ -49,11 +49,9 @@ namespace white {
  * @return RealType The current time after the time step has taken place.
  */
 struct one_step_fn {
-  std::unordered_map<Status, int> operator()(const RealType t,
-                                             const RealType dt,
-                                             const RealType population_eir,
-                                             Population& population,
-                                             const Parameters& params) const;
+  std::pair<std::unordered_map<Status, int>, RealType> operator()(
+      const RealType t, const RealType dt, const RealType population_eir,
+      Population& population, const Parameters& params) const;
 };
 
 inline constexpr one_step_fn one_step{};

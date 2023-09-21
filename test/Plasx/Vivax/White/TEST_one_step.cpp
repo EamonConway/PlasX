@@ -128,7 +128,8 @@ TEST(one_step, zero_eir) {
     population.emplace_back(100.0_yrs, 101.0_yrs, gen_age(generator), Status::S,
                             0.0, 0.0, 0.0, 0.0, 1.0);
   }
-  auto output = one_step(t0, dt, 1.0, population, params);
+  auto [output, total_foi] =
+      one_step(t0, dt, 1.0, population, params);
   for (auto [state, value] : output) {
     if (state == Status::S) {
       EXPECT_EQ(value, population.size());
@@ -136,6 +137,7 @@ TEST(one_step, zero_eir) {
       EXPECT_EQ(value, 0);
     }
   }
+  EXPECT_EQ(total_foi, 0.0);
 }
 
 TEST(one_step, all_death) {
