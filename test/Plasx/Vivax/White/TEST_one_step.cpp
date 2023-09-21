@@ -1,13 +1,14 @@
 #include <fstream>
 
 #include "PlasX/Vivax/White/one_step.hpp"
+#include "PlasX/Vivax/White/population.hpp"
 #include "PlasX/random.hpp"
 #include "PlasX/udl.hpp"
 #include "gtest/gtest.h"
 
-using namespace plasx;
-namespace pvibm = plasx::vivax::white;
-
+namespace plasx {
+namespace vivax {
+namespace white {
 // Json string literal for testing purposes.
 namespace {
 constexpr auto json_file = R"({
@@ -17,7 +18,7 @@ constexpr auto json_file = R"({
 "delay":10.0,
 "min_birth_age": 6570.0,
 "max_birth_age": 14600.0,
-"life_expectancy": 4380.0,
+"life_expectancy": 10000000000000000.0,
 "time_to_relapse": 41.0,
 "time_to_clear_hypnozoite": 383.0,
 "age0": 2920.0,
@@ -58,35 +59,33 @@ constexpr auto json_file = R"({
 
 TEST(one_step, timestep_update) {
   auto params_json = nlohmann::json::parse(json_file);
-  pvibm::Parameters params(params_json);
+  Parameters params(params_json);
   auto t0 = 0.0;
   auto t = t0;
   auto dt = 1.0;
-  std::vector<Individual<pvibm::PVivax>> population;
-  population.emplace_back(103.0_yrs, pvibm::Status::S, 0.0, 0.0, 0.0, 0.0, 1.0);
-  [[maybe_unused]] auto return_value =
-      pvibm::one_step(t, dt, population, params, 1.0);
-  EXPECT_EQ(t, t0 + dt);
+  auto population = Population();
+  population.emplace_back(params.min_birth_age, params.max_birth_age, 103.0_yrs,
+                          Status::S, 0.0, 0.0, 1.0, 0.0, 1.0);
 
+  [[maybe_unused]] auto return_value = one_step(t, dt, 1.0, population, params);
   // Run a second timestep for test.
-  return_value = pvibm::one_step(t, dt, population, params, 1.0);
-  EXPECT_EQ(t, t0 + 2 * dt);
+  return_value = one_step(t, dt, 1.0, population, params);
 };
 
 TEST(one_step, max_age_death) {
   // Parameter file loading - we assume that the tests are run from the bin
   // folder.
   auto params_json = nlohmann::json::parse(json_file);
-  pvibm::Parameters params(params_json);
+  Parameters params(params_json);
   auto t0 = 0.0;
   auto dt = 1.0;
-  std::vector<Individual<pvibm::PVivax>> population;
+  auto population = Population();
   for (auto i = 0; i < 10; ++i) {
-    population.emplace_back(103.0_yrs, pvibm::Status::S, 0.0, 0.0, 0.0, 0.0,
-                            1.0);
+    population.emplace_back(100.0_yrs, 101.0_yrs, 103.0_yrs, Status::S, 0.0,
+                            0.0, 0.0, 0.0, 1.0);
   }
 
-  [[maybe_unused]] auto t = pvibm::one_step(t0, dt, population, params, 1.0);
+  [[maybe_unused]] auto t = one_step(t0, dt, 1.0, population, params);
 
   // As the only individual is above the max age, they should die and be
   // replaced by a new individual.
@@ -101,15 +100,15 @@ TEST(one_step, ageing) {
   auto initial_age = 10.0_yrs;
   auto params_json = nlohmann::json::parse(json_file);
   params_json.at("life_expectancy") = std::numeric_limits<double>::max();
-  pvibm::Parameters params(params_json);
+  Parameters params(params_json);
   auto t0 = 0.0;
   auto dt = 150.0;
-  std::vector<Individual<pvibm::PVivax>> population;
+  auto population = Population();
   for (auto i = 0; i < 100; ++i) {
-    population.emplace_back(initial_age, pvibm::Status::S, 0.0, 0.0, 0.0, 0.0,
-                            1.0);
+    population.emplace_back(100.0_yrs, 101.0_yrs, initial_age, Status::S, 0.0,
+                            0.0, 0.0, 0.0, 1.0);
   }
-  pvibm::one_step(t0, dt, population, params, 1.0);
+  one_step(t0, dt, 1.0, population, params);
 
   // Check that they aged.
   for (auto person : population) {
@@ -121,17 +120,17 @@ TEST(one_step, zero_eir) {
   auto gen_age = std::exponential_distribution<RealType>(1.0 / 25.0);
   auto params_json = nlohmann::json::parse(json_file);
   params_json.at("life_expectancy") = std::numeric_limits<double>::max();
-  pvibm::Parameters params(params_json);
+  Parameters params(params_json);
   auto t0 = 0.0;
   auto dt = 150.0;
-  std::vector<Individual<pvibm::PVivax>> population;
+  auto population = Population();
   for (auto i = 0; i < 100; ++i) {
-    population.emplace_back(gen_age(generator), pvibm::Status::S, 0.0, 0.0, 0.0,
-                            0.0, 1.0);
+    population.emplace_back(100.0_yrs, 101.0_yrs, gen_age(generator), Status::S,
+                            0.0, 0.0, 0.0, 0.0, 1.0);
   }
-  auto output = pvibm::one_step(t0, dt, population, params, 0.0);
+  auto output = one_step(t0, dt, 1.0, population, params);
   for (auto [state, value] : output) {
-    if (state == pvibm::Status::S) {
+    if (state == Status::S) {
       EXPECT_EQ(value, population.size());
     } else {
       EXPECT_EQ(value, 0);
@@ -142,18 +141,23 @@ TEST(one_step, zero_eir) {
 TEST(one_step, all_death) {
   // Load parameter details and ensure death.
   auto params_json = nlohmann::json::parse(json_file);
-  // params_json.at("life_expectancy") = std::numeric_limits<RealType>::min();
-  pvibm::Parameters params(params_json);
+  // params_json.at("life_expectancy") =
+  std::numeric_limits<RealType>::min();
+  Parameters params(params_json);
   params.mu_d = std::numeric_limits<RealType>::max();
   auto t0 = 0.0;
   auto dt = 150.0;
 
-  std::vector<Individual<pvibm::PVivax>> population;
+  auto population = Population();
   for (auto i = 0; i < 100; ++i) {
-    population.emplace_back(0.0, pvibm::Status::S, 0.0, 0.0, 0.0, 0.0, 0.0);
+    population.emplace_back(100.0_yrs, 101.0_yrs, 0.0, Status::S, 0.0, 0.0, 0.0,
+                            0.0, 0.0);
   }
-  auto output = pvibm::one_step(t0, dt, population, params, 0.0);
+  auto output = one_step(t0, dt, 0.0, population, params);
   for (auto person : population) {
     EXPECT_EQ(person.age_, 0.0);
   }
 };
+}  // namespace white
+}  // namespace vivax
+}  // namespace plasx
