@@ -1,78 +1,14 @@
 #ifndef PLASX_MODEL_SIMULATION_FN_HPP
 #define PLASX_MODEL_SIMULATION_FN_HPP
 #include <tuple>
-#include <type_traits>
 
-#include "PlasX/Vivax/White/mosquito.hpp"
+#include "PlasX/details/function_args.hpp"
 #include "PlasX/types.hpp"
-
 namespace plasx {
-namespace {
-
-// functor
-template <class F>
-struct FunctionArgumentCount {
-  static constexpr std::size_t value =
-      FunctionArgumentCount<decltype(&F::operator())>::value - 1;
-};
-// function pointer
-template <class R, class... Args>
-struct FunctionArgumentCount<R (*)(Args...)>
-    : public FunctionArgumentCount<R(Args...)> {};
-
-template <class R, class... Args>
-struct FunctionArgumentCount<R(Args...)> {
-  static constexpr std::size_t value = sizeof...(Args);
-};
-
-// member function pointer
-template <class C, class R, class... Args>
-struct FunctionArgumentCount<R (C::*)(Args...)>
-    : public FunctionArgumentCount<R(C&, Args...)> {};
-
-// const member function pointer
-template <class C, class R, class... Args>
-struct FunctionArgumentCount<R (C::*)(Args...) const>
-    : public FunctionArgumentCount<R(C&, Args...)> {};
-
-// member object pointer
-template <class C, class R>
-struct FunctionArgumentCount<R(C::*)> : public FunctionArgumentCount<R(C&)> {};
-
-template <class F>
-struct FunctionArgumentCount<F&> : public FunctionArgumentCount<F> {};
-
-template <class F>
-struct FunctionArgumentCount<F&&> : public FunctionArgumentCount<F> {};
-
-template <unsigned N>
-struct splitHumanMosquitoArguments {
-  template <typename First, typename... Args>
-  constexpr auto operator()(First&& f, Args&&... args) {
-    auto value =
-        splitHumanMosquitoArguments<N - 1>{}(std::forward<Args>(args)...);
-    return std::pair{
-        std::tuple_cat(std::forward_as_tuple(f), std::move(value.first)),
-        std::move(value.second)};
-  }
-
-  constexpr auto operator()() { return splitHumanMosquitoArguments<N - 1>{}(); }
-};
-
-template <>
-struct splitHumanMosquitoArguments<0> {
-  template <typename... Args>
-  constexpr auto operator()(Args&&... args) {
-    return std::make_pair(std::forward_as_tuple(),
-                          std::forward_as_tuple(args...));
-  }
-};
-}  // namespace
-
 template <typename HumanModelType, typename MosquitoModelType>
 struct model_simulation_fn {
-  // Do we want to forward the inputs?
-  model_simulation_fn(HumanModelType&& human, MosquitoModelType&& mosquito)
+  constexpr model_simulation_fn(HumanModelType&& human,
+                                MosquitoModelType&& mosquito)
       : human_model_fn(std::forward<HumanModelType>(human)),
         mosquito_model_fn(std::forward<MosquitoModelType>(mosquito)){};
 
@@ -80,16 +16,20 @@ struct model_simulation_fn {
   auto operator()(const RealType t0, const RealType t1, const RealType dt,
                   Eir&& initial_eir, ModelArgs&&... model_args) {
     // Split the arguments into the human and mosquito model.
-    constexpr auto N_human_args =
-        FunctionArgumentCount<HumanModelType>::value - 3;
+    constexpr auto num_human_args =
+        FunctionArgumentCounter<HumanModelType>::value - 3;
     auto [human_args, mosquito_args] =
-        splitHumanMosquitoArguments<N_human_args>{}(
+        splitHumanMosquitoArguments<num_human_args>{}(
             std::forward<ModelArgs>(model_args)...);
 
     // Initial condition does not have to satisfy the model equations.
     auto t = t0;
+    // In a perfect world I would use structure bindings for the return type of
+    // human_model_fn and mosquito_model_fn. However, structured bindings cannot
+    // be captured by reference in lambda functions with Clang. This makes the
+    // code less readable in my opinion, but is worth ensuring that there are no
+    // compile errors on different machines.
     auto eir = initial_eir;
-    auto foi_mosquitoes = 0.0;
     while (t < t1) {
       // Calculate the mosquito to human interaction.
       auto human_output = std::apply(
@@ -98,11 +38,10 @@ struct model_simulation_fn {
                                   std::forward<decltype(args)>(args)...);
           },
           human_args);
-      foi_mosquitoes = human_output.second;
       // Calculate the human mosquito interaction.
       auto mosquito_output = std::apply(
           [&](auto&&... args) {
-            return mosquito_model_fn(t, dt, foi_mosquitoes,
+            return mosquito_model_fn(t, dt, human_output.second,
                                      std::forward<decltype(args)>(args)...);
           },
           mosquito_args);
