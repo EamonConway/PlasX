@@ -1,6 +1,7 @@
+#include "PlasX/Vivax/White/population.hpp"
+#include "PlasX/Vivax/White/pvibm.hpp"
 #include "PlasX/Vivax/white.hpp"
 #include "PlasX/random.hpp"
-#include "PlasX/simulation.hpp"
 #include "PlasX/types.hpp"
 #include "PlasX/udl.hpp"
 #include "nlohmann/json.hpp"
@@ -27,10 +28,8 @@ nlohmann::json Params2Json(const pybind11::dict& dict) {
   return json;
 };
 
-auto equilibrium_simulation(
-    const double t0, const double t1,
-    const std::function<plasx::RealType(plasx::RealType)>& eir,
-    const pybind11::dict& dict) {
+auto equilibrium_simulation(const double t0, const double t1, const double eir,
+                            const pybind11::dict& dict) {
   const auto params = Parameters(Params2Json(dict));
   const int N = params.num_people;
   const auto dt = params.time_step;
@@ -44,16 +43,17 @@ auto equilibrium_simulation(
     population.emplace_back(gen_age(generator), Status::S, 0.0, 0.0, 0.0, 0.0,
                             gen_zeta(generator), params.rho, params.age_0, 0);
   }
-
+  Population pop(std::move(population));
   // Run the simulation.
-  auto [tout, yout] = simulation(t0, t1, dt, one_step, population, params, eir);
+  auto [t, human_out, mosquito_out] =
+      pvibm::equilibrium(t0, t1, dt, eir, pop, params, eir);
   auto invert_yout = std::unordered_map<Status, std::vector<RealType>>();
-  for (auto& time_step : yout) {
+  for (auto& time_step : human_out) {
     for (auto& [key, value] : time_step) {
       invert_yout[key].push_back(value);
     }
   }
-  return std::pair{tout, invert_yout};
+  return std::make_pair(t, invert_yout);
 }
 }  // namespace
 }  // namespace white
