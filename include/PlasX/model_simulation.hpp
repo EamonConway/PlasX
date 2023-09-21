@@ -16,7 +16,7 @@ struct model_simulation_fn {
 
   template <typename Eir, typename... ModelArgs>
   auto operator()(const RealType t0, const RealType t1, const RealType dt,
-                  Eir&& initial_eir, ModelArgs&&... model_args) {
+                  Eir&& initial_eir, ModelArgs&&... model_args) const {
     // Initial condition does not have to satisfy the model equations.
     auto t = t0;
     auto eir = initial_eir;
@@ -37,34 +37,32 @@ struct model_simulation_fn {
             std::tuple(t, dt, std::declval<HumanModelReturnType>().second),
             mosquito_args)));
 
-    using OutputTypes =
-        std::tuple<RealType, HumanModelReturnType, MosquitoModelReturnType>;
-
     // Output declaration
-    std::vector<OutputTypes> output;
+    auto time_output_store = std::vector<RealType>();
+    auto human_state_output =
+        std::vector<typename HumanModelReturnType::first_type>();
+    auto mosquito_state_store =
+        std::vector<typename MosquitoModelReturnType::first_type>();
 
     while (t <= t1) {
       // Calculate the mosquito to human interaction.
       HumanModelReturnType human_output = std::apply(
-          [&](auto&&... args) {
-            return human_model_fn(t, dt, eir,
-                                  std::forward<decltype(args)>(args)...);
-          },
-          human_args);
+          human_model_fn, std::tuple_cat(std::tuple(t, dt, eir), human_args));
+
       // Calculate the human mosquito interaction.
-      MosquitoModelReturnType mosquito_output = std::apply(
-          [&](auto&&... args) {
-            return mosquito_model_fn(t, dt, human_output.second,
-                                     std::forward<decltype(args)>(args)...);
-          },
-          mosquito_args);
+      MosquitoModelReturnType mosquito_output =
+          std::apply(mosquito_model_fn,
+                     std::tuple_cat(std::tuple(t, dt, human_output.second),
+                                    mosquito_args));
 
       eir = mosquito_output.second;
-
-      output.emplace_back(std::make_tuple(t, human_output, mosquito_output));
+      time_output_store.emplace_back(t);
+      human_state_output.emplace_back(human_output.first);
+      mosquito_state_store.emplace_back(mosquito_output.first);
       t += dt;
     }
-    return output;
+    return std::make_tuple(time_output_store, human_state_output,
+                           mosquito_state_store);
   };
 
  private:
