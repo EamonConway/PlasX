@@ -8,6 +8,6 @@ inline constexpr model_simulation_fn equilibrium(
     vivax::white::one_step_fn{}, [](RealType t, RealType dt, RealType eir) {
       return std::make_pair(0, eir);
     });
-}
+}  // namespace pvibm
 }  // namespace plasx
 #endif
