@@ -33,7 +33,7 @@ std::pair<std::unordered_map<Status, int>, RealType> one_step_fn::operator()(
   std::vector<Population::MaternalImmunity> cacheable_maternal_immunity;
   cacheable_maternal_immunity.reserve(population.size() / 4);
 
-  // Output data storage - TimeStepLogger?
+  // Output data storage
   std::unordered_map<Status, int> data_logger{
       {Status::S, 0},   {Status::I_PCR, 0}, {Status::I_LM, 0},
       {Status::I_D, 0}, {Status::T, 0},     {Status::P, 0}};
@@ -51,6 +51,10 @@ std::pair<std::unordered_map<Status, int>, RealType> one_step_fn::operator()(
   std::for_each(
       population.begin(), population.end(),
       [&](Population::PersonType& person) -> void {
+        // Log the current status of the individual for
+        // outputting.
+        ++data_logger[person.status_.current_];
+
         auto [individual_dies, individual_foi_mosquitoes] =
             IndividualOneStep(t, dt, person, params, eir_omega_zeta);
         total_foi_human_to_mosquitoes += individual_foi_mosquitoes;
@@ -86,10 +90,6 @@ std::pair<std::unordered_map<Status, int>, RealType> one_step_fn::operator()(
         }
         cacheable_omega_zeta +=
             person.status_.getOmega() * person.status_.getZeta();
-
-        // Log the current status of the individual for
-        // outputting.
-        ++data_logger[person.status_.current_];
       });
 
   // Cache variables for any functions that will be required.
