@@ -23,6 +23,7 @@
 #include <type_traits>
 
 #include "PlasX/Vivax/White/parameters.hpp"
+#include "PlasX/Vivax/White/population.hpp"
 #include "PlasX/Vivax/White/pvivax.hpp"
 #include "PlasX/individual.hpp"
 namespace plasx {
@@ -40,20 +41,23 @@ namespace white {
  * hash.
  * @param t The current time of the simulation (days).
  * @param dt The size of the time step (days).
- * @param population Vector of all people in the population.
+ * @param population Storage class for all individuals and population level
+ * parameters.
  * @param params Parameter class.
  * @param eir Current Entomological Inocculation Rate (assumed constant for time
  * step).
  * @return RealType The current time after the time step has taken place.
  */
 struct one_step_fn {
-  std::unordered_map<Status, int> operator()(
-      RealType& t, RealType dt, RealType population_eir,
-      std::vector<Individual<PVivax>>& population,
-      const Parameters& params) const;
+  std::unordered_map<Status, int> operator()(const RealType t,
+                                             const RealType dt,
+                                             const RealType population_eir,
+                                             Population& population,
+                                             const Parameters& params) const;
 };
 
 inline constexpr one_step_fn one_step{};
+
 }  // namespace white
 }  // namespace vivax
 }  // namespace plasx
