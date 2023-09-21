@@ -29,10 +29,15 @@ class Individual {
    * @param dargs Parameter pack that is forwarded to the constructor of the
    * underlying status_.
    */
-  Individual(double age, auto&&... dargs)
-      : age_(age), status_(age, std::forward<decltype(dargs)>(dargs)...){};
+  template <typename... DiseaseArgs>
+  Individual(double age, DiseaseArgs&&... dargs)
+      : age_(age), status_(age, std::forward<DiseaseArgs>(dargs)...){};
 
-  bool isBirthingCapable(double min_age, double max_age) {
+  constexpr const bool isBirthingCapable(double min_age, double max_age) const {
+    return age_ >= min_age && age_ <= max_age;
+  }
+
+  constexpr bool isBirthingCapable(double min_age, double max_age) {
     return age_ >= min_age && age_ <= max_age;
   }
 
