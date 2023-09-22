@@ -1,5 +1,5 @@
 {
-  "num_people": 2000,
+  "num_people": 100000,
   "eir": 2.73972602739726,
   "time_step": 1.0,
   "delay": 10.0,
