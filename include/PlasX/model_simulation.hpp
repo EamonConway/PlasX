@@ -37,6 +37,11 @@ struct model_simulation_fn {
             std::tuple(t, dt, std::declval<HumanModelReturnType>().second),
             mosquito_args)));
 
+    static_assert(
+        !std::is_same_v<Eir, typename MosquitoModelReturnType::second_type>,
+        "EIR does not have the same type as "
+        "MosquitoModelReturnType::second_type");
+
     // Output declaration
     auto time_output_store = std::vector<RealType>();
     auto human_state_output =
