@@ -87,6 +87,16 @@ TEST_F(IndividualOneStepTests, MaxAge) {
   EXPECT_EQ(c, 0.0);
 }
 
+TEST_F(IndividualOneStepTests, randomness) {
+  auto local_params = *params;
+  (void)local_params;
+  generator.seed(0);
+  //for (auto i = 0; i < 100; ++i) {
+  //  std::cout << genunf_std(generator) << std::endl;
+  //}
+  FAIL();
+};
+
 class NothingHappens : public IndividualOneStepTests,
                        public ::testing::WithParamInterface<Status> {};
 
