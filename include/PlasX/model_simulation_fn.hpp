@@ -39,7 +39,7 @@ struct model_simulation_fn {
 
     static_assert(
         !std::is_same_v<Eir, typename MosquitoModelReturnType::second_type>,
-        "EIR does not have the same type as "
+        "initial_eir is required to have the same type as "
         "MosquitoModelReturnType::second_type");
 
     // Output declaration

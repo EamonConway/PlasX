@@ -21,7 +21,6 @@
  *
  */
 #include <type_traits>
-
 #include "PlasX/Vivax/White/parameters.hpp"
 #include "PlasX/Vivax/White/population.hpp"
 #include "PlasX/Vivax/White/pvivax.hpp"
