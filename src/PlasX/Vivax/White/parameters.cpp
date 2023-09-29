@@ -4,8 +4,6 @@ namespace vivax {
 namespace white {
 Parameters::Parameters(const nlohmann::json& json)
     : num_people(json.at("num_people").get<int>()),
-      eir(json.at("eir").get<double>()),
-      time_step(json.at("time_step").get<double>()),
       delay(json.at("delay").get<double>()),
       min_birth_age(json.at("min_birth_age").get<double>()),
       max_birth_age(json.at("max_birth_age").get<double>()),
@@ -32,12 +30,9 @@ Parameters::Parameters(const nlohmann::json& json)
       dPCR_50(json.at("dPCR_50").get<double>()),
       kappa_PCR(json.at("kappa_PCR").get<double>()),
       b(json.at("b").get<double>()),
-      exp_rate_dt_parasite_immunity(
-          std::exp(-time_step / json.at("d_parasite_immunity").get<double>())),
-      exp_rate_dt_clinical_immunity(
-          std::exp(-time_step / json.at("d_clinical_immunity").get<double>())),
-      exp_rate_dt_maternal_immunity(
-          std::exp(-time_step / json.at("d_maternal_immunity").get<double>())),
+      duration_parasite_immunity(json.at("d_parasite_immunity").get<double>()),
+      duration_clinical_immunity(json.at("d_clinical_immunity").get<double>()),
+      duration_maternal_immunity(json.at("d_maternal_immunity").get<double>()),
       proportion_maternal_immunity(
           json.at("proportion_maternal_immunity").get<double>()),
       end_maternal_immunity(json.at("end_maternal_immunity").get<double>()),
@@ -48,15 +43,7 @@ Parameters::Parameters(const nlohmann::json& json)
       c_T(json.at("c_T").get<double>()),
       biting_rate_log_mean(json.at("biting_rate_log_mean").get<double>()),
       biting_rate_log_sd(json.at("biting_rate_log_sd").get<double>()),
-      max_age(json.at("max_age").get<double>()) {
-  // Run all required checks for parameter constraints.
-  if (time_step <= 0.0) {
-    throw std::runtime_error(
-        "Error in " + std::string(__func__) + ": " + std::string(__FILE__) +
-        " at line " + std::to_string(__LINE__) +
-        ". Please specify a timestep that is greater that 0.0");
-  }
-}
+      max_age(json.at("max_age").get<double>()) {}
 }  // namespace white
 }  // namespace vivax
 }  // namespace plasx

@@ -25,10 +25,6 @@ class Parameters {
   Parameters(const nlohmann::json &json);
 
   struct Compressed {
-    double eir;
-    double time_step;
-
-    //
     double delay;
     double min_birth_age;
     double max_birth_age;
@@ -62,9 +58,11 @@ class Parameters {
     double b;
 
     // Immunity decay rates.
-    double exp_rate_dt_parasite_immunity, exp_rate_dt_clinical_immunity,
-        exp_rate_dt_maternal_immunity;
+    //    double exp_rate_dt_parasite_immunity, exp_rate_dt_clinical_immunity,
+    //        exp_rate_dt_maternal_immunity;
 
+    double duration_parasite_immunity, duration_clinical_immunity,
+        duration_maternal_immunity;
     // Maternal immunity.
     double proportion_maternal_immunity;
     double end_maternal_immunity;
@@ -86,9 +84,7 @@ class Parameters {
   };
 
   Compressed compressedOutput() const {
-    return {eir,
-            time_step,
-            delay,
+    return {delay,
             min_birth_age,
             max_birth_age,
             mu_d,
@@ -114,9 +110,9 @@ class Parameters {
             dPCR_50,
             kappa_PCR,
             b,
-            exp_rate_dt_parasite_immunity,
-            exp_rate_dt_clinical_immunity,
-            exp_rate_dt_maternal_immunity,
+            duration_parasite_immunity,
+            duration_clinical_immunity,
+            duration_maternal_immunity,
             proportion_maternal_immunity,
             end_maternal_immunity,
             refractory_period,
@@ -130,8 +126,6 @@ class Parameters {
   }
 
   int num_people;
-  double eir;
-  double time_step;
 
   //
   double delay;
@@ -167,9 +161,10 @@ class Parameters {
   double b;
 
   // Immunity decay rates.
-  double exp_rate_dt_parasite_immunity, exp_rate_dt_clinical_immunity,
-      exp_rate_dt_maternal_immunity;
-
+  //  double exp_rate_dt_parasite_immunity, exp_rate_dt_clinical_immunity,
+  //      exp_rate_dt_maternal_immunity;
+  double duration_parasite_immunity, duration_clinical_immunity,
+      duration_maternal_immunity;
   // Maternal immunity.
   double proportion_maternal_immunity;
   double end_maternal_immunity;

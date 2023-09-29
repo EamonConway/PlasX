@@ -431,10 +431,19 @@ IndividualOneStepReturnType IndividualOneStep(const RealType t,
   // Update remaining details - we are also updating individuals that will die.
   age += dt;
   state.setOmega(1.0 - params.rho * std::exp(-age / params.age_0));
-  state.updateImmunity(t, params.exp_rate_dt_parasite_immunity,
-                       params.exp_rate_dt_clinical_immunity,
-                       params.exp_rate_dt_maternal_immunity, age,
-                       params.end_maternal_immunity);
+  auto exp_rate_dt_parasite_immunity =
+      std::exp(-dt / params.duration_parasite_immunity);
+  auto exp_rate_dt_clinical_immunity =
+      std::exp(-dt / params.duration_clinical_immunity);
+  auto exp_rate_dt_maternal_immunity =
+      std::exp(-dt / params.duration_maternal_immunity);
+  state.updateImmunity(
+      t, exp_rate_dt_parasite_immunity, exp_rate_dt_clinical_immunity,
+      exp_rate_dt_maternal_immunity, age, params.end_maternal_immunity);
+  // In my opinion we should be able to remove the exp_rate_dt somewhere.
+  // This is a repeated calculation that is taking place every time step that
+  // does not need to be. Especially when considering that the exp function is
+  // one of the slower evaluations.
   return state_output;
 };
 }  // namespace white
