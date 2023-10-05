@@ -14,7 +14,6 @@ std::array<RealType, 3> simple_mosquito_ode_fn::operator()(
   const auto dI = gamma * E - mu * I;
   return {dS, dE, dI};
 }
-
 }  // namespace white
 }  // namespace vivax
 }  // namespace plasx
