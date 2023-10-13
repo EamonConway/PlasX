@@ -1,6 +1,5 @@
 #include "PlasX/Vivax/White/population.hpp"
 #include "PlasX/Vivax/White/pvibm.hpp"
-#include "PlasX/Vivax/white.hpp"
 #include "PlasX/random.hpp"
 #include "PlasX/types.hpp"
 #include "PlasX/udl.hpp"
@@ -28,11 +27,10 @@ nlohmann::json Params2Json(const pybind11::dict& dict) {
   return json;
 };
 
-auto equilibrium_simulation(const double t0, const double t1, const double eir,
-                            const pybind11::dict& dict) {
+auto equilibrium_simulation(const double t0, const double t1, const double dt,
+                            const double eir, const pybind11::dict& dict) {
   const auto params = Parameters(Params2Json(dict));
   const int N = params.num_people;
-  const auto dt = params.time_step;
 
   // Create individuals for the simulation
   auto gen_age = std::exponential_distribution<RealType>(params.mu_d);
