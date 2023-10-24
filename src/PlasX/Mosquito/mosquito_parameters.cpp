@@ -1,4 +1,4 @@
-#include "PlasX/Vivax/White/mosquito_parameters.hpp"
+#include "PlasX/Mosquito/mosquito_parameters.hpp"
 namespace plasx {
 namespace vivax {
 namespace white {

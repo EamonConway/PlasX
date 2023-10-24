@@ -1,4 +1,4 @@
-#include "PlasX/Vivax/White/simple_mosquito_ode_fn.hpp"
+#include "PlasX/Mosquito/simple_mosquito_ode_fn.hpp"
 namespace plasx {
 namespace vivax {
 namespace white {

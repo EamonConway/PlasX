@@ -2,7 +2,7 @@
 #define PLASX_VIVAX_WHITE_MOSQUITO_ODE_FN_HPP
 #include <array>
 
-#include "PlasX/Vivax/White/simple_mosquito_parameters.hpp"
+#include "PlasX/Mosquito/simple_mosquito_parameters.hpp"
 #include "PlasX/types.hpp"
 namespace plasx {
 namespace vivax {
