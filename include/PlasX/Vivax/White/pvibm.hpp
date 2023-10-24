@@ -1,6 +1,6 @@
 #ifndef PLASX_VIVAX_WHITE_PVIBM_HPP
 #define PLASX_VIVAX_WHITE_PVIBM_HPP
-#include "PlasX/Vivax/White/multispecies_mosquito_model.hpp"
+#include "PlasX/Mosquito/multispecies_mosquito_model.hpp"
 #include "PlasX/Vivax/White/one_step_fn.hpp"
 #include "PlasX/model_simulation_fn.hpp"
 namespace plasx {
