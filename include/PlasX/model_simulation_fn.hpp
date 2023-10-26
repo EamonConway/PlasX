@@ -15,8 +15,9 @@ struct model_simulation_fn {
         mosquito_model_fn(std::forward<MosquitoModelType>(mosquito)){};
 
   template <typename Eir, typename... ModelArgs>
-  auto operator()(const RealType t0, const RealType t1, const RealType dt,
-                  Eir&& initial_eir, ModelArgs&&... model_args) const {
+  [[nodiscard("Ignored simulation return type")]] auto operator()(
+      const RealType t0, const RealType t1, const RealType dt,
+      Eir&& initial_eir, ModelArgs&&... model_args) const {
     // Initial condition does not have to satisfy the model equations.
     auto t = t0;
     auto eir = initial_eir;
