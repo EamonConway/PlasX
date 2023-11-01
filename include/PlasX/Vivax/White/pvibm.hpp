@@ -12,7 +12,7 @@ inline constexpr model_simulation_fn equilibrium(
     });
 
 inline constexpr model_simulation_fn mosquito_ode_ibm_model(
-    vivax::white::one_step_fn{}, vivax::white::MultiSpeciesMosquitoOdeFn{});
+    vivax::white::one_step_fn{}, mosquito::MultiSpeciesMosquitoOdeFn{});
 }  // namespace pvibm
 }  // namespace plasx
 #endif

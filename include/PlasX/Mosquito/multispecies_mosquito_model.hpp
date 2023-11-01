@@ -1,15 +1,14 @@
 #ifndef PLASX_VIVAX_WHITE_MULTISPECIES_MOSQUITO_MODEL_HPP
 #define PLASX_VIVAX_WHITE_MULTISPECIES_MOSQUITO_MODEL_HPP
 #include <concepts>
-#include <map>
 #include <numeric>
 #include <type_traits>
+#include <unordered_map>
 
 #include "PlasX/types.hpp"
 #include "odepp/integrators/forward_euler.hpp"
 namespace plasx {
-namespace vivax {
-namespace white {
+namespace mosquito {
 // Ensure that Mosquito Odes satisfy the same criteria.
 template <typename Fn, typename ModelState, typename ModelParameters>
 concept FoiConcept =
@@ -53,7 +52,6 @@ struct MultiSpeciesMosquitoOdeFn {
 };
 
 inline constexpr MultiSpeciesMosquitoOdeFn mosquito_ode_model{};
-}  // namespace white
-}  // namespace vivax
+}  // namespace mosquito
 }  // namespace plasx
 #endif  // !PLASX_VIVAX_WHITE_MULTISPECIES_MOSQUITO_MODEL

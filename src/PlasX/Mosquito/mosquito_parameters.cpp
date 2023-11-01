@@ -1,7 +1,6 @@
 #include "PlasX/Mosquito/mosquito_parameters.hpp"
 namespace plasx {
-namespace vivax {
-namespace white {
+namespace mosquito {
 MosquitoParameters::MosquitoParameters(const nlohmann::json &json)
     : beta(json.at("eggs_laid_per_female_mosquito").get<RealType>()),
       mu_E0(json.at("death_rate_early_instars").get<RealType>()),
@@ -13,6 +12,5 @@ MosquitoParameters::MosquitoParameters(const nlohmann::json &json)
       mu_p(1.0 / json.at("death_rate_pupae").get<RealType>()),
       mu_m(1.0 / json.at("life_expectancy").get<RealType>()),
       mu_tau(1.0 / json.at("sporogony_duration").get<RealType>()) {}
-}  // namespace white
-}  // namespace vivax
+}  // namespace mosquito
 }  // namespace plasx

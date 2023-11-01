@@ -5,8 +5,7 @@
 #include "PlasX/Mosquito/simple_mosquito_parameters.hpp"
 #include "PlasX/types.hpp"
 namespace plasx {
-namespace vivax {
-namespace white {
+namespace mosquito {
 struct simple_mosquito_ode_fn {
   std::array<RealType, 3> operator()(
       const RealType t, const std::array<RealType, 3>& state,
@@ -14,7 +13,6 @@ struct simple_mosquito_ode_fn {
 };
 
 inline constexpr simple_mosquito_ode_fn simple_mosquito_ode{};
-}  // namespace white
-}  // namespace vivax
+}  // namespace mosquito
 }  // namespace plasx
 #endif

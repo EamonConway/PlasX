@@ -1,10 +1,10 @@
 #include "PlasX/Mosquito/simple_mosquito_ode_fn.hpp"
 namespace plasx {
-namespace vivax {
-namespace white {
+namespace mosquito {
 std::array<RealType, 3> simple_mosquito_ode_fn::operator()(
     const RealType t, const std::array<RealType, 3>& state,
-    const RealType lambda, const SimpleMosquitoParameters& params) const {
+    const RealType lambda,
+    const mosquito::SimpleMosquitoParameters& params) const {
   auto& [S, E, I] = state;
   auto& [mu_0, gamma, zeta, phi] = params;
   const auto mu = mu_0;
@@ -14,6 +14,5 @@ std::array<RealType, 3> simple_mosquito_ode_fn::operator()(
   const auto dI = gamma * E - mu * I;
   return {dS, dE, dI};
 }
-}  // namespace white
-}  // namespace vivax
+}  // namespace mosquito
 }  // namespace plasx

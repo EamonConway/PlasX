@@ -1,10 +1,9 @@
-#ifndef PLASX_VIVAX_WHITE_MOSQUITO_PARAMETERS_HPP
-#define PLASX_VIVAX_WHITE_MOSQUITO_PARAMETERS_HPP
+#ifndef PLASX_MOSQUITO_MOSQUITO_PARAMETERS_HPP
+#define PLASX_MOSQUITO_MOSQUITO_PARAMETERS_HPP
 #include "PlasX/types.hpp"
 #include "nlohmann/json.hpp"
 namespace plasx {
-namespace vivax {
-namespace white {
+namespace mosquito {
 class MosquitoParameters {
  public:
   MosquitoParameters(const nlohmann::json &json);
@@ -19,7 +18,6 @@ class MosquitoParameters {
   RealType mu_m;
   RealType mu_tau;
 };
-}  // namespace white
-}  // namespace vivax
+}  // namespace mosquito
 }  // namespace plasx
 #endif
