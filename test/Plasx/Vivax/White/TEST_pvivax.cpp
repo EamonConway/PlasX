@@ -10,7 +10,7 @@ TEST(pvivax, constructor) {
   EXPECT_EQ(person.getParasiteImmunity(), 0.0);
   EXPECT_EQ(person.getClinicalImmunity(), 0.0);
   EXPECT_EQ(person.getZeta(), 0.0);
-  EXPECT_EQ(person.getNumHypnozoites(), 0);
+  EXPECT_EQ(person.getNumHypnozoites(), std::size_t(0));
 
   auto test_zeta = 12.5;
   auto test_rho = 0.2;
@@ -27,7 +27,7 @@ TEST(pvivax, constructor) {
   EXPECT_EQ(person2.getClinicalImmunity(),
             clinical_immunity + maternal_clinical);
   EXPECT_EQ(person2.getZeta(), test_zeta);
-  EXPECT_EQ(person2.getNumHypnozoites(), 0);
+  EXPECT_EQ(person2.getNumHypnozoites(), std::size_t(0));
 }
 
 TEST(pvivax, changeHypnozoites) {
@@ -46,11 +46,11 @@ TEST(pvivax, changeHypnozoites) {
   EXPECT_EQ(person.getClinicalImmunity(),
             clinical_immunity + maternal_clinical);
   EXPECT_EQ(person.getZeta(), test_zeta);
-  EXPECT_EQ(person.getNumHypnozoites(), 0);
-  EXPECT_EQ(++person.getNumHypnozoites(), 1);
-  EXPECT_EQ(++person.getNumHypnozoites(), 2);
-  EXPECT_EQ(--person.getNumHypnozoites(), 1);
-  EXPECT_EQ(--person.getNumHypnozoites(), 0);
+  EXPECT_EQ(person.getNumHypnozoites(), std::size_t(0));
+  EXPECT_EQ(++person.getNumHypnozoites(), std::size_t(1));
+  EXPECT_EQ(++person.getNumHypnozoites(), std::size_t(2));
+  EXPECT_EQ(--person.getNumHypnozoites(), std::size_t(1));
+  EXPECT_EQ(--person.getNumHypnozoites(), std::size_t(0));
 }
 
 TEST(pvivax, Infections) {
@@ -72,11 +72,11 @@ TEST(pvivax, Infections) {
 
   person.queueInfection(10.0, 1.0, 1.0, 10.0);
   person.queueInfection(15.0, 0.0, 1.0, 10.0);
-  EXPECT_EQ(person.getNumHypnozoites(), 0);
+  EXPECT_EQ(person.getNumHypnozoites(),std::size_t(0));
 
   return_type = person.updateInfection(20.0, 0.0);
   EXPECT_EQ(return_type, true);
-  EXPECT_EQ(person.getNumHypnozoites(), 1);
+  EXPECT_EQ(person.getNumHypnozoites(), std::size_t(1));
   // Update but dont change
   person.updateImmunity(0.0, 1.0, 1.0, 1.0, 0.0, 1.0_yrs);
   EXPECT_EQ(person.getParasiteImmunity(),
@@ -99,7 +99,7 @@ TEST(pvivax, Infections) {
             parasite_immunity + maternal_parasite + 2.0);
   EXPECT_EQ(person.getClinicalImmunity(),
             clinical_immunity + maternal_clinical + 2.0);
-  EXPECT_EQ(person.getNumHypnozoites(), 1);
+  EXPECT_EQ(person.getNumHypnozoites(), std::size_t(1));
 
   // Check age of individual removes maternal immunity.
   person.updateImmunity(0.0, 1.0, 1.0, 1.0, 366.0, 1.0_yrs);
@@ -126,8 +126,8 @@ TEST(pvivax, clearInfections) {
 
   person.queueInfection(10.0, 1.0, 1.0, 10.0);
   person.queueInfection(15.0, 0.0, 1.0, 10.0);
-  EXPECT_EQ(person.getNumHypnozoites(), 0);
+  EXPECT_EQ(person.getNumHypnozoites(), std::size_t(0));
   person.clearInfectionQueue();
   auto [u, infection_q] = person.copyPrivateData();
-  EXPECT_EQ(infection_q.size(), 0);
+  EXPECT_EQ(infection_q.size(), std::size_t(0));
 }

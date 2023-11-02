@@ -58,8 +58,8 @@ constexpr auto json_file = R"({
 
 TEST(Population, TrivialConstructor) {
   auto pop = Population();
-  EXPECT_EQ(pop.size(), 0);
-  EXPECT_EQ(pop.get_maternal_immunity().size(), 1);
+  EXPECT_EQ(pop.size(), std::size_t(0));
+  EXPECT_EQ(pop.get_maternal_immunity().size(), std::size_t(1));
   EXPECT_EQ(pop.total_omega_zeta(), 0.0);
 }
 
@@ -67,9 +67,9 @@ TEST(Population, EmplaceBack) {
   auto pop = Population();
   pop.emplace_back(1000.0, 10000.0, 0.0, Status::S, 0.0, 0.0, 0.0, 0.0, 1.0,
                    0.2, 10.0, 0);
-  EXPECT_EQ(pop.size(), 1);
+  EXPECT_EQ(pop.size(), std::size_t(1));
   EXPECT_EQ(pop.total_omega_zeta(), 0.8);
-  EXPECT_EQ(pop.get_maternal_immunity().size(), 1);
+  EXPECT_EQ(pop.get_maternal_immunity().size(), std::size_t(1));
 
   auto iter = pop.begin();
   EXPECT_EQ(++iter, pop.end());
@@ -81,8 +81,8 @@ TEST(Population, EmplaceBackOneStepBroken) {
   auto population = Population();
   population.emplace_back(params.min_birth_age, params.max_birth_age, 103.0_yrs,
                           Status::S, 0.0, 0.0, 0.0, 0.0, 1.0);
-  EXPECT_EQ(population.size(), 1);
-  EXPECT_EQ(population.get_maternal_immunity().size(), 1);
+  EXPECT_EQ(population.size(), std::size_t(1));
+  EXPECT_EQ(population.get_maternal_immunity().size(), std::size_t(1));
 
   auto iter = population.begin();
   EXPECT_EQ(++iter, population.end());
@@ -102,8 +102,8 @@ TEST(Population, AssignmentOperator) {
   auto population = Population();
   population.emplace_back(params.min_birth_age, params.max_birth_age, 103.0_yrs,
                           Status::S, 0.0, 0.0, 0.0, 0.0, 1.0);
-  EXPECT_EQ(population.size(), 1);
-  EXPECT_EQ(population.get_maternal_immunity().size(), 1);
+  EXPECT_EQ(population.size(), std::size_t(1));
+  EXPECT_EQ(population.get_maternal_immunity().size(), std::size_t(1));
 
   auto iter = population.begin();
   auto parasite_immunity = 1.0, age_0 = 2820.0, zeta = 1.0, rho = 0.2,

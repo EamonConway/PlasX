@@ -91,9 +91,9 @@ TEST_F(IndividualOneStepTests, randomness) {
   auto local_params = *params;
   (void)local_params;
   generator.seed(0);
-  //for (auto i = 0; i < 100; ++i) {
-  //  std::cout << genunf_std(generator) << std::endl;
-  //}
+  // for (auto i = 0; i < 100; ++i) {
+  //   std::cout << genunf_std(generator) << std::endl;
+  // }
   FAIL();
 };
 
@@ -113,7 +113,7 @@ TEST_P(NothingHappens, State) {
   EXPECT_EQ(person.age_, age + dt);
   EXPECT_EQ(person.status_.current_, state);
   EXPECT_EQ(person.status_.getClinicalImmunity(), 0.0);
-  EXPECT_EQ(person.status_.getNumHypnozoites(), 0);
+  EXPECT_EQ(person.status_.getNumHypnozoites(), std::size_t(0));
   EXPECT_EQ(
       person.status_.getOmega(),
       1.0 - local_params.rho * std::exp(-(age + dt) / local_params.age_0));
@@ -124,7 +124,7 @@ TEST_P(NothingHappens, State) {
   const auto data = person.status_.copyPrivateData();
   EXPECT_EQ(data.time_refractory_period_over,
             std::numeric_limits<double>::lowest());
-  EXPECT_EQ(data.infection_queue.size(), 0);
+  EXPECT_EQ(data.infection_queue.size(), std::size_t(0));
 }
 
 INSTANTIATE_TEST_SUITE_P(IndividualOneStepTests, NothingHappens,
@@ -142,7 +142,7 @@ TEST_F(IndividualOneStepTests, SusceptibleUpdateNewInfection) {
   EXPECT_EQ(person.age_, age + dt);
   EXPECT_EQ(person.status_.current_, Status::S);
   EXPECT_EQ(person.status_.getClinicalImmunity(), 0.0);
-  EXPECT_EQ(person.status_.getNumHypnozoites(), 0);
+  EXPECT_EQ(person.status_.getNumHypnozoites(), std::size_t(0));
   EXPECT_EQ(person.status_.getOmega(),
             1.0 - params->rho * std::exp(-(age + dt) / params->age_0));
   EXPECT_EQ(person.status_.getParasiteImmunity(), 0.0);
@@ -152,7 +152,7 @@ TEST_F(IndividualOneStepTests, SusceptibleUpdateNewInfection) {
   const auto data = person.status_.copyPrivateData();
   EXPECT_EQ(data.time_refractory_period_over,
             std::numeric_limits<double>::lowest());
-  EXPECT_EQ(data.infection_queue.size(), 1);
+  EXPECT_EQ(data.infection_queue.size(), std::size_t(1));
 }
 
 TEST_F(IndividualOneStepTests, SusceptibleUpdateTriggerInfection) {
@@ -170,7 +170,7 @@ TEST_F(IndividualOneStepTests, SusceptibleUpdateTriggerInfection) {
   EXPECT_EQ(person.age_, age + dt);
   EXPECT_EQ(person.status_.current_, Status::I_D);
   EXPECT_EQ(person.status_.getClinicalImmunity(), 1.0);
-  EXPECT_EQ(person.status_.getNumHypnozoites(), 1);
+  EXPECT_EQ(person.status_.getNumHypnozoites(), std::size_t(1));
   EXPECT_EQ(person.status_.getOmega(),
             1.0 - params->rho * std::exp(-(age + dt) / params->age_0));
   EXPECT_EQ(person.status_.getParasiteImmunity(), 1.0);
@@ -180,7 +180,7 @@ TEST_F(IndividualOneStepTests, SusceptibleUpdateTriggerInfection) {
   const auto data = person.status_.copyPrivateData();
   EXPECT_EQ(data.time_refractory_period_over,
             time_infection + params->refractory_period);
-  EXPECT_EQ(data.infection_queue.size(), 0);
+  EXPECT_EQ(data.infection_queue.size(), std::size_t(0));
 }
 
 TEST_F(IndividualOneStepTests, SusceptibleUpdateTrigger5Infection) {
@@ -200,7 +200,7 @@ TEST_F(IndividualOneStepTests, SusceptibleUpdateTrigger5Infection) {
   EXPECT_EQ(person.age_, age + dt);
   EXPECT_EQ(person.status_.current_, Status::T);
   EXPECT_EQ(person.status_.getClinicalImmunity(), 1.0);
-  EXPECT_EQ(person.status_.getNumHypnozoites(), 5);
+  EXPECT_EQ(person.status_.getNumHypnozoites(), std::size_t(5));
   EXPECT_EQ(person.status_.getOmega(),
             1.0 - params->rho * std::exp(-(age + dt) / params->age_0));
   EXPECT_EQ(person.status_.getParasiteImmunity(), 1.0);
@@ -210,7 +210,7 @@ TEST_F(IndividualOneStepTests, SusceptibleUpdateTrigger5Infection) {
   const auto data = person.status_.copyPrivateData();
   EXPECT_EQ(data.time_refractory_period_over,
             time_infection + params->refractory_period);
-  EXPECT_EQ(data.infection_queue.size(), 0);
+  EXPECT_EQ(data.infection_queue.size(), std::size_t(0));
 }
 
 TEST_F(IndividualOneStepTests, SusceptibleUpdateRelapse) {
@@ -228,7 +228,7 @@ TEST_F(IndividualOneStepTests, SusceptibleUpdateRelapse) {
   EXPECT_EQ(person.age_, age + dt);
   EXPECT_EQ(person.status_.current_, Status::I_D);
   EXPECT_EQ(person.status_.getClinicalImmunity(), 1.0);
-  EXPECT_EQ(person.status_.getNumHypnozoites(), 0);
+  EXPECT_EQ(person.status_.getNumHypnozoites(), std::size_t(0));
   EXPECT_EQ(person.status_.getOmega(),
             1.0 - params->rho * std::exp(-(age + dt) / params->age_0));
   EXPECT_EQ(person.status_.getParasiteImmunity(), 1.0);
@@ -238,7 +238,7 @@ TEST_F(IndividualOneStepTests, SusceptibleUpdateRelapse) {
   const auto data = person.status_.copyPrivateData();
   EXPECT_EQ(data.time_refractory_period_over,
             time_infection + params->refractory_period);
-  EXPECT_EQ(data.infection_queue.size(), 0);
+  EXPECT_EQ(data.infection_queue.size(), std::size_t(0));
 }
 
 class InfectionIPCRPath : public IndividualOneStepTests,
@@ -262,7 +262,7 @@ TEST_P(InfectionIPCRPath, APUpdate) {
   EXPECT_EQ(person.age_, age + dt);
   EXPECT_EQ(person.status_.current_, Status::I_PCR);
   EXPECT_EQ(person.status_.getClinicalImmunity(), 1.0);
-  EXPECT_EQ(person.status_.getNumHypnozoites(), 1);
+  EXPECT_EQ(person.status_.getNumHypnozoites(), std::size_t(1));
   EXPECT_EQ(
       person.status_.getOmega(),
       1.0 - local_params.rho * std::exp(-(age + dt) / local_params.age_0));
@@ -273,7 +273,7 @@ TEST_P(InfectionIPCRPath, APUpdate) {
   const auto data = person.status_.copyPrivateData();
   EXPECT_EQ(data.time_refractory_period_over,
             time_infection + local_params.refractory_period);
-  EXPECT_EQ(data.infection_queue.size(), 0);
+  EXPECT_EQ(data.infection_queue.size(), std::size_t(0));
 }
 
 INSTANTIATE_TEST_SUITE_P(IndividualOneStepTests, InfectionIPCRPath,
@@ -302,7 +302,7 @@ TEST_P(InfectionILMPath, ACUpdate) {
   EXPECT_EQ(person.age_, age + dt);
   EXPECT_EQ(person.status_.current_, Status::I_LM);
   EXPECT_EQ(person.status_.getClinicalImmunity(), 1.0);
-  EXPECT_EQ(person.status_.getNumHypnozoites(), 1);
+  EXPECT_EQ(person.status_.getNumHypnozoites(), std::size_t(1));
   EXPECT_EQ(
       person.status_.getOmega(),
       1.0 - local_params.rho * std::exp(-(age + dt) / local_params.age_0));
@@ -313,7 +313,7 @@ TEST_P(InfectionILMPath, ACUpdate) {
   const auto data = person.status_.copyPrivateData();
   EXPECT_EQ(data.time_refractory_period_over,
             time_infection + local_params.refractory_period);
-  EXPECT_EQ(data.infection_queue.size(), 0);
+  EXPECT_EQ(data.infection_queue.size(), std::size_t(0));
 }
 
 INSTANTIATE_TEST_SUITE_P(IndividualOneStepTests, InfectionILMPath,
@@ -344,7 +344,7 @@ TEST_P(InfectionIDPath, ACUpdate) {
   EXPECT_EQ(person.age_, age + dt);
   EXPECT_EQ(person.status_.current_, Status::I_D);
   EXPECT_EQ(person.status_.getClinicalImmunity(), 1.0);
-  EXPECT_EQ(person.status_.getNumHypnozoites(), 1);
+  EXPECT_EQ(person.status_.getNumHypnozoites(), std::size_t(1));
   EXPECT_EQ(
       person.status_.getOmega(),
       1.0 - local_params.rho * std::exp(-(age + dt) / local_params.age_0));
@@ -355,7 +355,7 @@ TEST_P(InfectionIDPath, ACUpdate) {
   const auto data = person.status_.copyPrivateData();
   EXPECT_EQ(data.time_refractory_period_over,
             time_infection + local_params.refractory_period);
-  EXPECT_EQ(data.infection_queue.size(), 0);
+  EXPECT_EQ(data.infection_queue.size(), std::size_t(0));
 }
 
 INSTANTIATE_TEST_SUITE_P(IndividualOneStepTests, InfectionIDPath,
@@ -392,7 +392,7 @@ TEST_P(InfectionTPath, ACUpdate) {
   }
 
   EXPECT_EQ(person.status_.getClinicalImmunity(), 1.0);
-  EXPECT_EQ(person.status_.getNumHypnozoites(), 1);
+  EXPECT_EQ(person.status_.getNumHypnozoites(), std::size_t(1));
   EXPECT_EQ(
       person.status_.getOmega(),
       1.0 - local_params.rho * std::exp(-(age + dt) / local_params.age_0));
@@ -403,7 +403,7 @@ TEST_P(InfectionTPath, ACUpdate) {
   const auto data = person.status_.copyPrivateData();
   EXPECT_EQ(data.time_refractory_period_over,
             time_infection + local_params.refractory_period);
-  EXPECT_EQ(data.infection_queue.size(), 0);
+  EXPECT_EQ(data.infection_queue.size(), std::size_t(0));
 }
 
 INSTANTIATE_TEST_SUITE_P(IndividualOneStepTests, InfectionTPath,

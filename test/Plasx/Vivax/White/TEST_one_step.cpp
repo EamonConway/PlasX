@@ -1,6 +1,6 @@
 #include <fstream>
 
-#include "PlasX/Vivax/White/one_step.hpp"
+#include "PlasX/Vivax/White/one_step_fn.hpp"
 #include "PlasX/Vivax/White/population.hpp"
 #include "PlasX/random.hpp"
 #include "PlasX/udl.hpp"
@@ -128,11 +128,10 @@ TEST(one_step, zero_eir) {
     population.emplace_back(100.0_yrs, 101.0_yrs, gen_age(generator), Status::S,
                             0.0, 0.0, 0.0, 0.0, 1.0);
   }
-  auto [output, total_foi] =
-      one_step(t0, dt, 1.0, population, params);
+  auto [output, total_foi] = one_step(t0, dt, 1.0, population, params);
   for (auto [state, value] : output) {
     if (state == Status::S) {
-      EXPECT_EQ(value, population.size());
+      EXPECT_EQ(std::size_t(value), population.size());
     } else {
       EXPECT_EQ(value, 0);
     }
