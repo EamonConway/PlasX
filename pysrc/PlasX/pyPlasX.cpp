@@ -6,6 +6,7 @@
 #include "nlohmann/json.hpp"
 void add_mosquito_module(pybind11::module_& m);
 void add_equilibrium_module(pybind11::module_& m);
+void add_pvibm_parameter_module(pybind11::module_& m);
 
 PYBIND11_MODULE(pyPlasX, px) {
   px.doc() =
@@ -14,11 +15,15 @@ PYBIND11_MODULE(pyPlasX, px) {
   auto pvibm =
       px.def_submodule("pvibm",
                        R"mydelimiter(A Plasmodium Vivax Individual Based Model.
-      
+
       Contained within this submodule is a python implementation of the
       Plasmodium Vivax Individual based model (PVIBM) of White et al (2014).
       The states that an individual can occupy are also exposed through the
       status class.)mydelimiter");
-  add_mosquito_module(pvibm);
+  auto mosquito =
+      px.def_submodule("mosquito", R"mydelimiter(Define Mosquito Models.
+We have the mosquitoes.)mydelimiter");
+  add_mosquito_module(mosquito);
   add_equilibrium_module(pvibm);
+  add_pvibm_parameter_module(pvibm);
 }
