@@ -1,25 +1,12 @@
-import pandas as pd
-import numpy as np
-import sys
+from pybin.pyPlasX.mosquito import SimpleMosquitoParams as Parameters
+from pybin.pyPlasX.mosquito import mosquito_model
 import matplotlib.pyplot as plt
-sys.path.append(r'/Users/conway.e/repos/PlasX/pybin')
-import pyPlasX as px
+import numpy as np
 
-t,y = px.vivax.white.mosquito_model(1.0,1000000.0,0.125,0.0,400.0,{
-  "eggs_laid_per_female_mosquito": 21.19,
-  "development_early_larval_instars": 6.64,
-  "death_rate_early_instars": 0.034,
-  "development_late_larval_instars": 3.72,
-  "death_rate_late_instars": 0.035,
-  "gamma": 13.25,
-  "development_pupae": 0.64,
-  "death_rate_pupae": 0.25,
-  "life_expectancy": 6.0,
-  "sporogony_duration": 9.4
-})
+parameters = Parameters(death_rate=0.0, zeta=1.0, phi=1.0, gamma=1.0/12.0)
 
-x = np.array(t)
-f = np.array(y)
+t, y = mosquito_model(0.01, 0.125, 0.0, 500.0, [0.99, 0.01, 0.0],  parameters)
 
-plt.plot(x,f[:,3::5])
+y_matrix = np.array(y)
+plt.plot(t, y_matrix)
 plt.show()
