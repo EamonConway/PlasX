@@ -1,7 +1,6 @@
 #ifndef PLASX_TYPES_HPP
 #define PLASX_TYPES_HPP
-#include <stddef.h>
-
+#include <cstdint>
 #include <string>
 /**
  * @file types.hpp
@@ -15,7 +14,7 @@
  */
 namespace plasx {
 using RealType = double;
-using SizeType = size_t;
+using SizeType = std::size_t;
 using MosquitoSpecies = std::string;
 }  // namespace plasx
 #endif
