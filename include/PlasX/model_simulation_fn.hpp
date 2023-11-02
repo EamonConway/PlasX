@@ -69,7 +69,7 @@ struct model_simulation_fn {
     }
     return std::make_tuple(time_output_store, human_state_output,
                            mosquito_state_store);
-  };
+  }
 
  private:
   HumanModelType human_model_fn;

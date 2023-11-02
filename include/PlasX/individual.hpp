@@ -31,7 +31,7 @@ class Individual {
    */
   template <typename... DiseaseArgs>
   Individual(double age, DiseaseArgs&&... dargs)
-      : age_(age), status_(age, std::forward<DiseaseArgs>(dargs)...){};
+      : age_(age), status_(age, std::forward<DiseaseArgs>(dargs)...) {}
 
   constexpr const bool isBirthingCapable(double min_age, double max_age) const {
     return age_ >= min_age && age_ <= max_age;
