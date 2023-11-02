@@ -1,10 +1,14 @@
 # Define flags for compilation.
-CXX = g++  -Wall -Wpedantic -Werror -flto -fPIC
+COMPILER = /usr/local/Cellar/gcc/13.1.0/bin/g++-13
+COMPILER = g++
+CXX = $(COMPILER)  -Wall -Wpedantic -Werror  -fPIC -g -O3 -std=c++2b
 INCLUDE = include
-NLOHMANN = ../json/single_include/
+# NLOHMANN = ../json/single_include/
+GTEST = /usr/local/Cellar/googletest/1.10.0/include
+NLOHMANN = ../
 ODEPP = ../odeplusplus/include
 PYBIND = ../pybind11/include
-CPPFLAGS = -std=c++2a -I$(INCLUDE) -I$(NLOHMANN) -I$(ODEPP)
+CPPFLAGS = -I$(INCLUDE) -I$(NLOHMANN) -I$(ODEPP)
 CFLAGS =
 PY_OBJ = pybuild
 OBJ = build
@@ -21,23 +25,23 @@ PYBIND_OBJ := $(patsubst $(PY_API)/%.cpp, $(PY_OBJ)/%.o, $(PYBIND_SRC))
 PYTHON_H := $(shell python3-config --includes)
 PYTHON_EXTENSION := $(shell python3-config --extension-suffix)
 
-python-library: pvibm-mosquito objects pybind_objects
+python-library:  tests objects pybind_objects pvibm-equilibrium
 	@mkdir -p pybin
 	@echo $(PYBIND_OBJ)
-	g++ -O3 -Wall -shared -std=c++2a $(python3-config --includes) -I$(PYBIND) -o pybin/pyPlasX$(PYTHON_EXTENSION) $(PYBIND_OBJ) $(OBJECTS)
-	#g++ -O3 -Wall -shared -std=c++2a -undefined dynamic_lookup $(python3-config --includes) -I$(PYBIND) -o pybin/pyPlasX$(PYTHON_EXTENSION) $(PYBIND_OBJ) $(OBJECTS)
+	# g++ -O3 -Wall -shared -std=c++2a $(python3-config --includes) -I$(PYBIND) -o pybin/pyPlasX$(PYTHON_EXTENSION) $(PYBIND_OBJ) $(OBJECTS)
+	$(CXX) -shared -undefined dynamic_lookup $(python3-config --includes) -I$(PYBIND) -o pybin/pyPlasX$(PYTHON_EXTENSION) $(PYBIND_OBJ) $(OBJECTS)
 
 pvibm-mosquito: pvibm-equilibrium tests objects
 	@mkdir -p bin
 	#$(CXX) $(CPPFLAGS) -o bin/plasx-pvibm-mosquito main_mosquito.cpp $(OBJECTS)
 
-pvibm-equilibrium: tests objects
+pvibm-equilibrium:  tests objects
 	@mkdir -p bin
 	$(CXX) $(CPPFLAGS) -o bin/plasx-pvibm-equilibrium plasx-pvibm-equilibrium.cpp $(OBJECTS)
 
 tests: objects test_objects
 	@mkdir -p bin
-	$(CXX) $(CPPFLAGS) -o bin/TEST_runner $(TEST_OBJECTS) $(OBJECTS) -lgtest -pthread
+	$(CXX) $(CPPFLAGS) -o bin/TEST_runner $(TEST_OBJECTS) $(OBJECTS)  -lgtest -pthread
 
 objects: $(OBJECTS)
 test_objects: $(TEST_OBJECTS)
@@ -58,7 +62,7 @@ $(OBJ)/%.o: $(SRC)/%.cpp
 
 $(OBJ)/%.o: $(TEST)/%.cpp
 	@mkdir -p $(@D)
-	$(CXX) -c $(CPPFLAGS) $< -o $@
+	$(CXX) -c $(CPPFLAGS) -I$(GTEST) $< -o $@
 
 $(PY_OBJ)/%.o: $(PY_API)/%.cpp
 	@mkdir -p $(@D)
