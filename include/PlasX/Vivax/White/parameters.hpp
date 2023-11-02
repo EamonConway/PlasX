@@ -24,6 +24,21 @@ class Parameters {
    */
   Parameters(const nlohmann::json &json);
 
+  Parameters(int num_people, double delay, double min_birth_age,
+             double max_birth_age, double mu_d, double f, double gamma,
+             double age_0, double rho, double r_P, double r_T, double r_D,
+             double r_LM, double phiLM_min, double phiLM_50, double phiLM_max,
+             double kappa_LM, double phiD_min, double phiD_50, double phiD_max,
+             double kappa_D, double chiT, double dPCR_min, double dPCR_max,
+             double dPCR_50, double kappa_PCR, double b,
+             double duration_parasite_immunity,
+             double duration_clinical_immunity,
+             double duration_maternal_immunity,
+             double proportion_maternal_immunity, double end_maternal_immunity,
+             double refractory_period, double c_ILM, double c_IPCR, double c_ID,
+             double c_T, double biting_rate_log_mean, double biting_rate_log_sd,
+             double max_age);
+
   struct Compressed {
     double delay;
     double min_birth_age;
@@ -63,6 +78,7 @@ class Parameters {
 
     double duration_parasite_immunity, duration_clinical_immunity,
         duration_maternal_immunity;
+
     // Maternal immunity.
     double proportion_maternal_immunity;
     double end_maternal_immunity;
