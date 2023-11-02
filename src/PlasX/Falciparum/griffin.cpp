@@ -1,9 +1,9 @@
 #include "PlasX/Falciparum/griffin.hpp"
 
+#include <algorithm>
 #include <iostream>
 
 #include "PlasX/random.hpp"
-
 namespace plasx {
 namespace falciparum {
 namespace griffin {
@@ -247,8 +247,8 @@ static bool P_update(PFalc& state, const Parameters& params,
 }
 
 RealType one_step(const double t, const double dt,
-                         std::vector<Individual<PFalc>>& population,
-                         const Parameters& params, double eir) {
+                  std::vector<Individual<PFalc>>& population,
+                  const Parameters& params, double eir) {
   // Get biting parameters to calculate Lambda
   const auto b_min = params.b_min, b_max = params.b_max, I_B0 = params.I_B0,
              kappa_B = params.kappa_B, rho = params.rho, age_0 = params.age_0,
