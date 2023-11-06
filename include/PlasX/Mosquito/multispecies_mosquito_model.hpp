@@ -23,8 +23,8 @@ struct MultiSpeciesMosquitoOdeFn {
   template <typename ModelState, typename ModelParameters,
             MosquitoOdeConcept<ModelState, ModelParameters> Model,
             FoiConcept<ModelState, ModelParameters> FoiFn>
-  auto operator()(RealType t, RealType dt, FoiFn&& getFoi, Model&& model,
-                  RealType lambda,
+  auto operator()(RealType t, RealType dt, RealType lambda, FoiFn&& getFoi,
+                  Model&& model,
                   const std::unordered_map<MosquitoSpecies, ModelState>& state,
                   const std::unordered_map<MosquitoSpecies, ModelParameters>&
                       params) const {
