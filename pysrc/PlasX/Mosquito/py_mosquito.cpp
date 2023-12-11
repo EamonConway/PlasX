@@ -1,39 +1,100 @@
 #include <iostream>
+#include <numeric>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 
+#include "PlasX/Mosquito/multispecies_mosquito_model.hpp"
 #include "PlasX/Mosquito/simple_mosquito_ode_fn.hpp"
 #include "PlasX/Mosquito/simple_mosquito_parameters.hpp"
+#include "PlasX/types.hpp"
 #include "odepp/ode_forward_euler.hpp"
 #include "pybind11/pybind11.h"
 #include "pybind11/stl.h"
+#include "pybind11/stl_bind.h"
+
 using namespace plasx;
+using plasx::mosquito::mosquito_ode_model;
+using plasx::mosquito::simple_mosquito_ode;
+using plasx::mosquito::SimpleMosquitoParameters;
 namespace py = pybind11;
 
+PYBIND11_MAKE_OPAQUE(
+    std::unordered_map<MosquitoSpecies, SimpleMosquitoParameters>);
+
+PYBIND11_MAKE_OPAQUE(
+    std::unordered_map<MosquitoSpecies, std::array<RealType, 3>>);
+
 namespace {
-auto simple_ode_mosquito_model(
-    const double lambda, const double dt, const double t0, const double t1,
-    const std::array<RealType, 3>& state,
-    const mosquito::SimpleMosquitoParameters& parameters) {
-  return odepp::ode_forward_euler(mosquito::simple_mosquito_ode, t0, t1, dt,
-                                  state, lambda, parameters);
+auto simple_ode_mosquito_model(const double lambda, const double dt,
+                               const double t0, const double t1,
+                               const std::array<RealType, 3>& state,
+                               const SimpleMosquitoParameters& parameters) {
+  return odepp::ode_forward_euler(simple_mosquito_ode, t0, t1, dt, state,
+                                  lambda, parameters);
+}
+auto multispecies_simple_ode_mosquito_model(
+    double lambda, double dt, double t0, double t1,
+    const std::unordered_map<MosquitoSpecies, std::array<RealType, 3>>& state,
+    const std::unordered_map<MosquitoSpecies, SimpleMosquitoParameters>&
+        parameters) {
+  auto CalculateFoi = [](const std::array<RealType, 3>& state,
+                         const SimpleMosquitoParameters& params) {
+    return state[2];
+  };
+
+  using ReturnType = std::invoke_result_t<
+      plasx::mosquito::MultiSpeciesMosquitoOdeFn, RealType&, RealType, RealType,
+      decltype(CalculateFoi), decltype(simple_mosquito_ode), decltype(state),
+      decltype(parameters)>;
+
+  auto output_state = state;
+  auto tout = std::vector<RealType>();
+  tout.reserve((t1 - t0) / dt);
+  auto yout = std::vector<ReturnType>();
+  yout.reserve((t1 - t0) / dt);
+
+  tout.emplace_back(t0);
+  yout.emplace_back(mosquito_ode_model(t0, 0.0, lambda, CalculateFoi,
+                                       simple_mosquito_ode, state, parameters));
+  while (t0 < t1) {
+    yout.emplace_back(mosquito_ode_model(t0, dt, lambda, CalculateFoi,
+                                         simple_mosquito_ode, output_state,
+                                         parameters));
+    tout.emplace_back(t0);
+    output_state = yout.back().first;
+  }
+  return std::make_pair(tout, yout);
 }
 }  // namespace
+
 void add_mosquito_module(py::module_& module) {
-  py::class_<mosquito::SimpleMosquitoParameters>(module, "SimpleMosquitoParams")
+  py::class_<SimpleMosquitoParameters>(module, "SimpleMosquitoParameters")
       .def(py::init<RealType, RealType, RealType, RealType>(),
-           py::arg("death_rate"), pybind11::arg("gamma"), py::arg("zeta"),
-           pybind11::arg("phi"))
-      .def_readwrite("death_rate", &mosquito::SimpleMosquitoParameters::mu)
-      .def_readwrite("exposed_rate", &mosquito::SimpleMosquitoParameters::gamma)
-      .def_readwrite("zeta", &mosquito::SimpleMosquitoParameters::zeta)
-      .def_readwrite("phi", &mosquito::SimpleMosquitoParameters::phi)
-      .def("__repr__", [](const mosquito::SimpleMosquitoParameters& x) {
+           py::arg("death_rate"), py::arg("gamma"), py::arg("zeta"),
+           py::arg("phi"))
+      .def_readwrite("death_rate", &SimpleMosquitoParameters::mu)
+      .def_readwrite("exposed_rate", &SimpleMosquitoParameters::gamma)
+      .def_readwrite("zeta", &SimpleMosquitoParameters::zeta)
+      .def_readwrite("phi", &SimpleMosquitoParameters::phi)
+      .def("__repr__", [](const SimpleMosquitoParameters& x) {
         return "{\n death_rate: " + std::to_string(x.mu) +
                ",\n exposed_rate: " + std::to_string(x.gamma) +
                ",\n zeta: " + std::to_string(x.zeta) +
                ",\n phi: " + std::to_string(x.phi) + "\n}";
       });
+
+  // Import a map that contains the parameters for each mosquito population
+  py::bind_map<std::unordered_map<MosquitoSpecies, SimpleMosquitoParameters>>(
+      module, "MapSimpleMosquitoParameters");
+
+  // Import an unordered map that will contain the state of the mosquito
+  // population.
+  py::bind_map<std::unordered_map<MosquitoSpecies, std::array<RealType, 3>>>(
+      module, "MapSimpleMosquitoState");
+
   module.def("mosquito_model", &simple_ode_mosquito_model,
+             "Run the mosquito model that is used within PVIBM.");
+  module.def("ms_mosquito_model", &multispecies_simple_ode_mosquito_model,
              "Run the mosquito model that is used within PVIBM.");
 }
