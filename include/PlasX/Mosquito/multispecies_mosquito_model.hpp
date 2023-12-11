@@ -23,29 +23,24 @@ struct MultiSpeciesMosquitoOdeFn {
   template <typename ModelState, typename ModelParameters,
             MosquitoOdeConcept<ModelState, ModelParameters> Model,
             FoiConcept<ModelState, ModelParameters> FoiFn>
-  auto operator()(RealType t, RealType dt, RealType lambda, FoiFn&& getFoi,
+  auto operator()(RealType& t, RealType dt, RealType lambda, FoiFn&& getFoi,
                   Model&& model,
                   const std::unordered_map<MosquitoSpecies, ModelState>& state,
                   const std::unordered_map<MosquitoSpecies, ModelParameters>&
                       params) const {
     auto output_state = state;
 
-    const auto AccumulateFoi = [&getFoi, &params](const auto lhs,
-                                                  const auto& rhs) {
-      const auto& [species, species_state] = rhs;
-      return lhs + getFoi(species_state, params.at(species));
+    auto UpdateMosquitoes = [&model, &dt, &t, &lambda, &params,
+                             &getFoi](auto& mosquito) {
+      auto& [species, species_state] = mosquito;
+      species_state = odepp::integrator::forward_euler(
+          model, dt, t, species_state, lambda, params.at(species));
+      return getFoi(species_state, params.at(species));
     };
 
-    const auto UpdateMosquitoes = [&model, &dt, &t, &lambda,
-                                   &params](const auto& mosquito) {
-      const auto& [species, species_state] = mosquito;
-      return odepp::integrator::forward_euler(model, dt, t, species_state,
-                                              lambda, params.at(species));
-    };
-
-    auto foi = std::transform_reduce(std::begin(state), std::end(state),
-                                     std::begin(output_state), 0.0,
-                                     UpdateMosquitoes, AccumulateFoi);
+    auto foi =
+        std::transform_reduce(std::begin(output_state), std::end(output_state),
+                              0.0, std::plus(), UpdateMosquitoes);
 
     return std::pair(output_state, foi);
   }
