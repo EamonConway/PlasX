@@ -21,21 +21,19 @@ int main(int argc, char* argv[]) {
   auto t0 = 0.0_yrs, t1 = 100.0_yrs;
   auto eir = 2.73972602739726 * 10000;
   // Create individuals for the simulation
+  plasx::vivax::white::Population population;
   auto gen_age = std::exponential_distribution<RealType>(params.mu_d);
-  std::vector<Individual<plasx::vivax::white::PVivax>> population;
   auto gen_zeta = std::lognormal_distribution<RealType>(
       params.biting_rate_log_mean, params.biting_rate_log_sd);
 
   for (auto i = 0; i < N; ++i) {
-    population.emplace_back(gen_age(generator), plasx::vivax::white::Status::S,
-                            0.0, 0.0, 0.0, 0.0, gen_zeta(generator), params.rho,
-                            params.age_0, 0);
+    population.emplace_back(0.0, 10.0, gen_age(generator),
+                            plasx::vivax::white::Status::S, 0.0, 0.0, 0.0, 0.0,
+                            gen_zeta(generator), params.rho, params.age_0, 0);
   }
-
-  plasx::vivax::white::Population pop(std::move(population));
   // Run the simulation.
   auto [t, yout, mosquito_out] =
-      pvibm::equilibrium(t0, t1, dt, eir, pop, params, eir);
+      pvibm::equilibrium(t0, t1, dt, eir, population, params, eir);
   // Open the binary file for writing
   std::ofstream outfile("output.pxbin", std::ios::binary);
   const char header_info[] = "plasx";
@@ -48,7 +46,7 @@ int main(int argc, char* argv[]) {
   outfile.write(reinterpret_cast<const char*>(&command_info),
                 sizeof(command_info));
 
-  for (const auto& person : pop) {
+  for (const auto& person : population) {
     // Write the data to the file
     const auto& output = person.status_.compressedOutput();
     const auto age = static_cast<float>(person.age_);
@@ -61,7 +59,7 @@ int main(int argc, char* argv[]) {
 
   std::ofstream output("people.csv");
   output << "age,zeta,pimm,cimm,mpimm,cmimm,nhyp,state";
-  for (const auto& person : pop) {
+  for (const auto& person : population) {
     // Write the data to the file
     output << '\n' << person.age_ << ", " << person.status_;
   }
@@ -69,7 +67,7 @@ int main(int argc, char* argv[]) {
 
   std::ofstream time_data("prevalence.csv");
   time_data << "time,n";
-  for (auto i = 0; i < yout.size(); ++i) {
+  for (std::size_t i = 0; i < yout.size(); ++i) {
     for (const auto& [x, y] : yout[i]) {
       if (x == vivax::white::Status::I_PCR) {
         time_data << '\n' << t[i];
