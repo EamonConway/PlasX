@@ -20,11 +20,8 @@
  * @copyright Copyright (c) 2023
  *
  */
-#include <type_traits>
 #include "PlasX/Vivax/White/parameters.hpp"
 #include "PlasX/Vivax/White/population.hpp"
-#include "PlasX/Vivax/White/pvivax.hpp"
-#include "PlasX/individual.hpp"
 namespace plasx {
 namespace vivax {
 namespace white {
