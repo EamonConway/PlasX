@@ -37,12 +37,10 @@ class PVivax {
    * @param maternal_clinical_immunity
    * @param zeta
    */
-  PVivax(const RealType age, const Status& status,
-         const RealType parasite_immunity, const RealType clinical_immunity,
-         const RealType maternal_parasite_immunity,
-         const RealType maternal_clinical_immunity, const RealType zeta,
-         const RealType rho, const RealType age_0,
-         const SizeType n_hypnozoites);
+  PVivax(RealType age, Status status, RealType parasite_immunity,
+         RealType clinical_immunity, RealType maternal_parasite_immunity,
+         RealType maternal_clinical_immunity, RealType zeta, RealType rho,
+         RealType age_0, SizeType n_hypnozoites);
 
   /**
    * @brief Construct a new PVivax object - should be used for the birth of an
@@ -53,17 +51,16 @@ class PVivax {
    * @param maternal_clinical_immunity
    * @param zeta
    */
-  PVivax(const RealType age, const Status& status,
-         const RealType maternal_parasite_immunity,
-         const RealType maternal_clinical_immunity, const RealType zeta,
-         const RealType rho, const RealType age_0);
+  PVivax(RealType age, Status status, RealType maternal_parasite_immunity,
+         RealType maternal_clinical_immunity, RealType zeta, RealType rho,
+         RealType age_0);
 
   /**
    * @brief What happens when an infection is triggered.
    *
    */
-  void queueInfection(const RealType t, const RealType lambda,
-                      const RealType total_prob, const RealType delay);
+  void queueInfection(RealType t, RealType lambda, RealType total_prob,
+                      RealType delay);
 
   /**
    * @brief Check if an infection event has to occur.
@@ -73,7 +70,7 @@ class PVivax {
    * @return true
    * @return false
    */
-  bool updateInfection(const RealType t, const RealType u_par);
+  bool updateInfection(RealType t, RealType u_par);
 
   SizeType& getNumHypnozoites() noexcept { return num_hypnozoites_; }
   const SizeType& getNumHypnozoites() const noexcept {
@@ -87,12 +84,10 @@ class PVivax {
    */
   void clearInfectionQueue() noexcept;
 
-  void updateImmunity(const RealType dt,
-                      const RealType exp_rate_dt_parasite_immunity,
-                      const RealType exp_rate_dt_clinical_immunity,
-                      const RealType exp_rate_dt_maternal_immunity,
-                      const RealType age,
-                      const RealType end_maternal_immunity) noexcept;
+  void updateImmunity(RealType dt, RealType exp_rate_dt_parasite_immunity,
+                      RealType exp_rate_dt_clinical_immunity,
+                      RealType exp_rate_dt_maternal_immunity, RealType age,
+                      RealType end_maternal_immunity) noexcept;
 
   /**
    * @brief Get the heterogeneity in biting for an individual.
@@ -102,7 +97,7 @@ class PVivax {
   const RealType& getZeta() const noexcept { return zeta_; };
 
   const RealType& getOmega() const noexcept { return omega_; };
-  void setOmega(const RealType& omega) noexcept { omega_ = omega; };
+  void setOmega(RealType omega) noexcept { omega_ = omega; };
 
   // get functions call the old levels of immunity as the others have been
   // updated slightly in the switch
@@ -152,8 +147,7 @@ class PVivax {
    * @param t
    * @param refractory_period
    */
-  void trackImmunityBoosts(const RealType t,
-                           const RealType refractory_period) noexcept;
+  void trackImmunityBoosts(RealType t, RealType refractory_period) noexcept;
 
   RealType parasite_immunity_, boosts_parasite_immunity_;
   RealType clinical_immunity_, boosts_clinical_immunity_;
