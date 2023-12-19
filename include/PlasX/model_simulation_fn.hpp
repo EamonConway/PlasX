@@ -30,13 +30,14 @@ struct model_simulation_fn {
             std::forward<ModelArgs>(model_args)...);
 
     using HumanModelReturnType = decltype(std::apply(
-        human_model_fn, std::tuple_cat(std::tuple(t, dt, eir), human_args)));
+        human_model_fn,
+        std::tuple_cat(std::forward_as_tuple(t, dt, eir), human_args)));
 
     using MosquitoModelReturnType = decltype(std::apply(
         mosquito_model_fn,
-        std::tuple_cat(
-            std::tuple(t, dt, std::declval<HumanModelReturnType>().second),
-            mosquito_args)));
+        std::tuple_cat(std::forward_as_tuple(
+                           t, dt, std::declval<HumanModelReturnType>().second),
+                       mosquito_args)));
 
     static_assert(
         !std::is_same_v<Eir, typename MosquitoModelReturnType::second_type>,
@@ -53,13 +54,14 @@ struct model_simulation_fn {
     while (t <= t1) {
       // Calculate the mosquito to human interaction.
       HumanModelReturnType human_output = std::apply(
-          human_model_fn, std::tuple_cat(std::tuple(t, dt, eir), human_args));
+          human_model_fn,
+          std::tuple_cat(std::forward_as_tuple(t, dt, eir), human_args));
 
       // Calculate the human mosquito interaction.
-      MosquitoModelReturnType mosquito_output =
-          std::apply(mosquito_model_fn,
-                     std::tuple_cat(std::tuple(t, dt, human_output.second),
-                                    mosquito_args));
+      MosquitoModelReturnType mosquito_output = std::apply(
+          mosquito_model_fn,
+          std::tuple_cat(std::forward_as_tuple(t, dt, human_output.second),
+                         mosquito_args));
 
       eir = mosquito_output.second;
       time_output_store.emplace_back(t);
