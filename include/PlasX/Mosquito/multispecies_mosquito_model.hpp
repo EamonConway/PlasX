@@ -1,6 +1,5 @@
 #ifndef PLASX_VIVAX_WHITE_MULTISPECIES_MOSQUITO_MODEL_HPP
 #define PLASX_VIVAX_WHITE_MULTISPECIES_MOSQUITO_MODEL_HPP
-#include <concepts>
 #include <numeric>
 #include <type_traits>
 #include <unordered_map>
@@ -23,11 +22,12 @@ struct MultiSpeciesMosquitoOdeFn {
   template <typename ModelState, typename ModelParameters,
             MosquitoOdeConcept<ModelState, ModelParameters> Model,
             FoiConcept<ModelState, ModelParameters> FoiFn>
-  auto operator()(RealType& t, RealType dt, RealType lambda, FoiFn&& getFoi,
-                  Model&& model,
-                  const std::unordered_map<MosquitoSpecies, ModelState>& state,
-                  const std::unordered_map<MosquitoSpecies, ModelParameters>&
-                      params) const {
+  [[nodiscard("Ignored return type of MultiSpeciesMosquitoOdeFn")]] auto
+  operator()(RealType& t, RealType dt, RealType lambda, FoiFn&& getFoi,
+             Model&& model,
+             const std::unordered_map<MosquitoSpecies, ModelState>& state,
+             const std::unordered_map<MosquitoSpecies, ModelParameters>& params)
+      const {
     auto output_state = state;
 
     auto UpdateMosquitoes = [&model, &dt, &t, &lambda, &params,
