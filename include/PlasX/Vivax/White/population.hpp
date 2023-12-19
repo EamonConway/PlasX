@@ -28,10 +28,20 @@ class Population {
   Population();
   Population(std::vector<MaternalImmunity>&& default_immunity_level);
 
-  constexpr iterator begin() { return data_.begin(); };
-  constexpr const_iterator begin() const { return data_.begin(); };
-  constexpr iterator end() { return data_.end(); };
-  constexpr const_iterator end() const { return data_.end(); };
+  [[nodiscard("iterator cannot be discarded")]] constexpr iterator begin() {
+    return data_.begin();
+  };
+  [[nodiscard("const_iterator cannot be discarded")]] constexpr const_iterator
+  begin() const {
+    return data_.begin();
+  };
+  [[nodiscard("iterator cannot be discarded")]] constexpr iterator end() {
+    return data_.end();
+  };
+  [[nodiscard("const_iterator cannot be discarded")]] constexpr const_iterator
+  end() const {
+    return data_.end();
+  };
 
   constexpr RealType& total_omega_zeta() {
     return population_total_omega_zeta_;
@@ -45,8 +55,8 @@ class Population {
 
   template <typename... IndividualArgs>
   void emplace_back(double min_age, double max_age, IndividualArgs&&... args) {
-    data_.emplace_back(std::forward<IndividualArgs>(args)...);
-    const auto& person = data_.back();
+    const auto& person =
+        data_.emplace_back(std::forward<IndividualArgs>(args)...);
     const auto& state = person.status_;
     const auto person_is_birthing_capable =
         person.isBirthingCapable(min_age, max_age);
