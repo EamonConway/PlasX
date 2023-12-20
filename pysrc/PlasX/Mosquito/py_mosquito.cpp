@@ -1,7 +1,4 @@
-#include <iostream>
-#include <numeric>
-#include <stdexcept>
-#include <string>
+// #include <string>
 #include <type_traits>
 
 #include "PlasX/Mosquito/multispecies_mosquito_model.hpp"
@@ -58,11 +55,11 @@ auto multispecies_simple_ode_mosquito_model(
   yout.emplace_back(mosquito_ode_model(t0, 0.0, lambda, CalculateFoi,
                                        simple_mosquito_ode, state, parameters));
   while (t0 < t1) {
-    yout.emplace_back(mosquito_ode_model(t0, dt, lambda, CalculateFoi,
-                                         simple_mosquito_ode, output_state,
-                                         parameters));
+    const auto& ref = yout.emplace_back(
+        mosquito_ode_model(t0, dt, lambda, CalculateFoi, simple_mosquito_ode,
+                           output_state, parameters));
     tout.emplace_back(t0);
-    output_state = yout.back().first;
+    output_state = ref.first;
   }
   return std::make_pair(tout, yout);
 }
