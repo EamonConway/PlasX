@@ -1,26 +1,17 @@
-// #include <string>
 #include <type_traits>
 
 #include "PlasX/Mosquito/multispecies_mosquito_model.hpp"
 #include "PlasX/Mosquito/simple_mosquito_ode_fn.hpp"
 #include "PlasX/Mosquito/simple_mosquito_parameters.hpp"
-#include "PlasX/types.hpp"
 #include "odepp/ode_forward_euler.hpp"
 #include "pybind11/pybind11.h"
 #include "pybind11/stl.h"
-#include "pybind11/stl_bind.h"
 
 using namespace plasx;
 using plasx::mosquito::mosquito_ode_model;
 using plasx::mosquito::simple_mosquito_ode;
 using plasx::mosquito::SimpleMosquitoParameters;
 namespace py = pybind11;
-
-PYBIND11_MAKE_OPAQUE(
-    std::unordered_map<MosquitoSpecies, SimpleMosquitoParameters>);
-
-PYBIND11_MAKE_OPAQUE(
-    std::unordered_map<MosquitoSpecies, std::array<RealType, 3>>);
 
 namespace {
 auto simple_ode_mosquito_model(const double lambda, const double dt,
@@ -30,6 +21,7 @@ auto simple_ode_mosquito_model(const double lambda, const double dt,
   return odepp::ode_forward_euler(simple_mosquito_ode, t0, t1, dt, state,
                                   lambda, parameters);
 }
+
 auto multispecies_simple_ode_mosquito_model(
     double lambda, double dt, double t0, double t1,
     const std::unordered_map<MosquitoSpecies, std::array<RealType, 3>>& state,
@@ -80,15 +72,6 @@ void add_mosquito_module(py::module_& module) {
                ",\n zeta: " + std::to_string(x.zeta) +
                ",\n phi: " + std::to_string(x.phi) + "\n}";
       });
-
-  // Import a map that contains the parameters for each mosquito population
-  py::bind_map<std::unordered_map<MosquitoSpecies, SimpleMosquitoParameters>>(
-      module, "MapSimpleMosquitoParameters");
-
-  // Import an unordered map that will contain the state of the mosquito
-  // population.
-  py::bind_map<std::unordered_map<MosquitoSpecies, std::array<RealType, 3>>>(
-      module, "MapSimpleMosquitoState");
 
   module.def("mosquito_model", &simple_ode_mosquito_model,
              "Run the mosquito model that is used within PVIBM.");
