@@ -18,7 +18,14 @@ namespace white {
  * @brief Enum for the different states an individual can occupy.
  *
  */
-enum class Status { S, I_LM, I_PCR, I_D, T, P };
+enum class Status : uint8_t {
+  S = 0,
+  I_LM = 1,
+  I_PCR = 2,
+  I_D = 3,
+  T = 4,
+  P = 5,
+};
 
 std::ostream& operator<<(std::ostream& os, const Status& data);
 }  // namespace white
