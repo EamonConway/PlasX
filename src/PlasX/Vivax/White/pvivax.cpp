@@ -21,21 +21,17 @@ std::ostream& operator<<(std::ostream& os, const PVivax& data) {
 }
 
 // Birth Constructor.
-PVivax::PVivax(const RealType age, const Status& status,
-               const RealType maternal_parasite_immunity,
-               const RealType maternal_clinical_immunity, const RealType zeta,
-               const RealType rho, const RealType age_0)
+PVivax::PVivax(RealType age, Status status, RealType maternal_parasite_immunity,
+               RealType maternal_clinical_immunity, RealType zeta, RealType rho,
+               RealType age_0)
     : PVivax(age, status, 0.0, 0.0, maternal_parasite_immunity,
              maternal_clinical_immunity, zeta, rho, age_0, 0){};
 
 // Typical Constructor
-PVivax::PVivax(const RealType age, const Status& status,
-               const RealType parasite_immunity,
-               const RealType clinical_immunity,
-               const RealType maternal_parasite_immunity,
-               const RealType maternal_clinical_immunity, const RealType zeta,
-               const RealType rho, const RealType age_0,
-               const SizeType n_hypnozoites)
+PVivax::PVivax(RealType age, Status status, RealType parasite_immunity,
+               RealType clinical_immunity, RealType maternal_parasite_immunity,
+               RealType maternal_clinical_immunity, RealType zeta, RealType rho,
+               RealType age_0, const SizeType n_hypnozoites)
     : current_(status),
       parasite_immunity_(parasite_immunity),
       boosts_parasite_immunity_(0.0),
@@ -48,8 +44,8 @@ PVivax::PVivax(const RealType age, const Status& status,
       omega_(1.0 - rho * std::exp(-age / age_0)),
       num_hypnozoites_(n_hypnozoites){};
 
-void PVivax::queueInfection(const RealType t, const RealType lambda,
-                            const RealType total_prob, const RealType delay) {
+void PVivax::queueInfection(RealType t, RealType lambda, RealType total_prob,
+                            RealType delay) {
   auto num_new_hypnozoites = 0;
   auto bitten = genunf_std(generator) < lambda / total_prob;
   if (bitten) {
@@ -60,7 +56,7 @@ void PVivax::queueInfection(const RealType t, const RealType lambda,
   infection_queue_.emplace(t + delay, num_new_hypnozoites);
 };
 
-bool PVivax::updateInfection(const RealType t, const RealType u_par) {
+bool PVivax::updateInfection(RealType t, RealType u_par) {
   if (infection_queue_.empty()) {
     return false;
   }
@@ -81,8 +77,8 @@ bool PVivax::updateInfection(const RealType t, const RealType u_par) {
   return true;
 }
 
-void PVivax::trackImmunityBoosts(const RealType t,
-                                 const RealType refractory_period) noexcept {
+void PVivax::trackImmunityBoosts(RealType t,
+                                 RealType refractory_period) noexcept {
   auto boosting_can_occur = t >= time_refractory_period_over_;
   if (boosting_can_occur) {
     ++boosts_parasite_immunity_;
@@ -91,12 +87,11 @@ void PVivax::trackImmunityBoosts(const RealType t,
   }
 }
 
-void PVivax::updateImmunity(const RealType dt,
-                            const RealType exp_rate_dt_parasite_immunity,
-                            const RealType exp_rate_dt_clinical_immunity,
-                            const RealType exp_rate_dt_maternal_immunity,
-                            const RealType age,
-                            const RealType end_maternal_immunity) noexcept {
+void PVivax::updateImmunity(RealType dt, RealType exp_rate_dt_parasite_immunity,
+                            RealType exp_rate_dt_clinical_immunity,
+                            RealType exp_rate_dt_maternal_immunity,
+                            RealType age,
+                            RealType end_maternal_immunity) noexcept {
   // Apply the decay rate onto immunity.
   parasite_immunity_ *= exp_rate_dt_parasite_immunity;
   parasite_immunity_ += boosts_parasite_immunity_;
