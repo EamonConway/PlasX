@@ -29,12 +29,12 @@ struct MultiSpeciesMosquitoOdeFn {
              const std::unordered_map<MosquitoSpecies, ModelParameters>& params)
       const {
     auto output_state = state;
-
     auto UpdateMosquitoes = [&model, &dt, &t, &lambda, &params,
                              &getFoi](auto& mosquito) {
       auto& [species, species_state] = mosquito;
+      auto local_t = t;
       species_state = odepp::integrator::forward_euler(
-          model, dt, t, species_state, lambda, params.at(species));
+          model, dt, local_t, species_state, lambda, params.at(species));
       return getFoi(species_state, params.at(species));
     };
 
@@ -42,6 +42,7 @@ struct MultiSpeciesMosquitoOdeFn {
         std::transform_reduce(std::begin(output_state), std::end(output_state),
                               0.0, std::plus(), UpdateMosquitoes);
 
+    t += dt;
     return std::pair(output_state, foi);
   }
 };
