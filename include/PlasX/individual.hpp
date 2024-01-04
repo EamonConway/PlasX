@@ -33,16 +33,12 @@ class Individual {
   Individual(double age, DiseaseArgs&&... dargs)
       : age_(age), status_(age, std::forward<DiseaseArgs>(dargs)...) {}
 
-  [[nodiscard(
-      "Cannot ignore "
-      "Individual<T>::isBirthingCapable() const.")]] constexpr const bool
+  [[nodiscard("Individual<T>::isBirthingCapable() const.")]] constexpr bool
   isBirthingCapable(double min_age, double max_age) const {
     return age_ >= min_age && age_ <= max_age;
   }
 
-  [[nodiscard(
-      "Cannot ignore "
-      "Individual<T>::isBirthingCapable().")]] constexpr bool
+  [[nodiscard("Individual<T>::isBirthingCapable().")]] constexpr bool
   isBirthingCapable(double min_age, double max_age) {
     return age_ >= min_age && age_ <= max_age;
   }
