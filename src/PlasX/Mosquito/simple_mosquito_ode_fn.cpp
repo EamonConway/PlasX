@@ -2,7 +2,7 @@
 namespace plasx {
 namespace mosquito {
 std::array<RealType, 3> simple_mosquito_ode_fn::operator()(
-    const RealType t, const std::array<RealType, 3>& state,
+    const RealType , const std::array<RealType, 3>& state,
     const RealType lambda,
     const mosquito::SimpleMosquitoParameters& params) const {
   auto& [S, E, I] = state;
