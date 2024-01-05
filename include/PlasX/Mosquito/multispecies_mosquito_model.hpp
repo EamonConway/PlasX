@@ -1,6 +1,7 @@
 #ifndef PLASX_VIVAX_WHITE_MULTISPECIES_MOSQUITO_MODEL_HPP
 #define PLASX_VIVAX_WHITE_MULTISPECIES_MOSQUITO_MODEL_HPP
 #include <numeric>
+#include <ranges>
 #include <type_traits>
 #include <unordered_map>
 
@@ -28,27 +29,25 @@ struct MultiSpeciesMosquitoOdeFn {
       const std::unordered_map<MosquitoSpecies, ModelParameters>& params)
       const {
     // Run the mosquito model over all mosquito species in the unordered_map
-    auto UpdateMosquitoes = [&](const auto& mosquito) {
-      const auto& [species, species_state] = mosquito;
-      auto local_t = t;
-      auto updated_species_state = odepp::integrator::forward_euler(
-          model, dt, local_t, species_state, lambda, params.at(species));
-      return getFoi(updated_species_state, params.at(species));
+    auto UpdateSingleSpecies = [&](const auto& species,
+                                   const auto& species_state, auto t) {
+      return odepp::integrator::forward_euler(model, dt, t, species_state,
+                                              lambda, params.at(species));
     };
 
-    auto UpdateStateAppendTotalFOI = [&](const auto& state) {
-      auto return_value = std::pair(state, 0.0);
-      auto& [output_state, foi] = return_value;
-      foi = std::transform_reduce(std::begin(output_state),
-                                  std::end(output_state), 0.0, std::plus(),
-                                  UpdateMosquitoes);
-      return return_value;
+    auto UpdateMosquitoes = [&](const auto& mosquitoes) {
+      std::pair<std::unordered_map<MosquitoSpecies, ModelState>, RealType>
+          output;
+      for (const auto& [species, state] : mosquitoes) {
+        auto [state_it, inserted] = output.first.emplace(
+            species, UpdateSingleSpecies(species, state, t));
+        output.second += getFoi(state_it->second, params.at(species));
+      }
+      t += dt;
+      return output;
     };
-
-    auto output = UpdateStateAppendTotalFOI(state);
-    t += dt;
-    return output;
-  }
+    return UpdateMosquitoes(state);
+  };
 };
 
 inline constexpr MultiSpeciesMosquitoOdeFn mosquito_ode_model{};
