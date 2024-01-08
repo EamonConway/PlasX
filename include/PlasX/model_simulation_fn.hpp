@@ -5,8 +5,8 @@
 
 #include "PlasX/details/function_args.hpp"
 #include "PlasX/types.hpp"
-namespace plasx {
 
+namespace plasx {
 template <typename HumanModelType, typename MosquitoModelType>
 struct model_simulation_fn {
   constexpr model_simulation_fn(HumanModelType&& human,
@@ -15,7 +15,7 @@ struct model_simulation_fn {
         mosquito_model_fn(std::forward<MosquitoModelType>(mosquito)){};
 
   template <typename Eir, typename... ModelArgs>
-  [[nodiscard("Ignored simulation return type")]] auto operator()(
+  [[nodiscard("model_simulation_fn")]] auto operator()(
       const RealType t0, const RealType t1, const RealType dt,
       Eir&& initial_eir, ModelArgs&&... model_args) const {
     // Initial condition does not have to satisfy the model equations.
