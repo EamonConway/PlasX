@@ -5,13 +5,11 @@
  */
 #include "PlasX/Vivax/White/one_step_fn.hpp"
 
-#include <cmath>
 #include <utility>
 
 #include "PlasX/Vivax/White/individual_update.hpp"
 #include "PlasX/Vivax/White/population.hpp"
 #include "PlasX/random.hpp"
-#include "PlasX/udl.hpp"
 
 namespace plasx {
 namespace vivax {
