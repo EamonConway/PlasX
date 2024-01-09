@@ -51,7 +51,7 @@ class Population {
   };
 
   constexpr size_type size() { return data_.size(); };
-  constexpr const size_type size() const { return data_.size(); };
+  constexpr size_type size() const { return data_.size(); };
 
   template <typename... IndividualArgs>
   void emplace_back(double min_age, double max_age, IndividualArgs&&... args) {
