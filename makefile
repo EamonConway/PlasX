@@ -1,7 +1,8 @@
 # Define flags for compilation.
 COMPILER = /usr/local/Cellar/gcc/13.1.0/bin/g++-13
 COMPILER = g++
-CXX = $(COMPILER)  -Wall -Wpedantic -Werror  -fPIC -g -O3 -std=c++2b
+# CXX = $(COMPILER)  -Wall -Wpedantic -Werror  -Wextra -Wconversion -fPIC -g -O3 -std=c++2b
+CXX = $(COMPILER)  -Wall -Wpedantic -Werror  -Wextra -fPIC -g -O3 -std=c++2b
 INCLUDE = include
 # NLOHMANN = ../json/single_include/
 GTEST = /usr/local/Cellar/googletest/1.10.0/include
@@ -17,6 +18,7 @@ TEST = test
 PY_API = pysrc
 
 SOURCES := $(shell find $(SRC) -name "*.cpp")
+SOURCES := $(shell find $(SRC) -type f -name '*.cpp' -not -path '$(SRC)/PlasX/Falciparum/*')
 OBJECTS := $(patsubst $(SRC)/%.cpp, $(OBJ)/%.o, $(SOURCES))
 TEST_SOURCES := $(shell find $(TEST) -name "*.cpp")
 TEST_OBJECTS := $(patsubst $(TEST)/%.cpp, $(OBJ)/%.o, $(TEST_SOURCES))
