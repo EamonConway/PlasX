@@ -28,9 +28,7 @@ auto multispecies_simple_ode_mosquito_model(
     const std::unordered_map<MosquitoSpecies, SimpleMosquitoParameters>&
         parameters) {
   auto CalculateFoi = [](const std::array<RealType, 3>& state,
-                         const SimpleMosquitoParameters& params) {
-    return state[2];
-  };
+                         const SimpleMosquitoParameters&) { return state[2]; };
 
   using ReturnType = std::invoke_result_t<
       plasx::mosquito::MultiSpeciesMosquitoOdeFn, RealType&, RealType, RealType,
