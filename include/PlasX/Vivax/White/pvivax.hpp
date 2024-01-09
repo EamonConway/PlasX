@@ -13,9 +13,7 @@
 #include <iostream>
 
 #include "PlasX/Vivax/White/infection_scheduler.hpp"
-#include "PlasX/Vivax/White/parameters.hpp"
 #include "PlasX/Vivax/White/status.hpp"
-#include "PlasX/individual.hpp"
 
 namespace plasx {
 namespace vivax {
@@ -101,10 +99,10 @@ class PVivax {
 
   // get functions call the old levels of immunity as the others have been
   // updated slightly in the switch
-  const RealType getParasiteImmunity() const noexcept {
+  RealType getParasiteImmunity() const noexcept {
     return parasite_immunity_ + maternal_parasite_immunity_;
   };
-  const RealType getClinicalImmunity() const noexcept {
+  RealType getClinicalImmunity() const noexcept {
     return clinical_immunity_ + maternal_clinical_immunity_;
   };
 
