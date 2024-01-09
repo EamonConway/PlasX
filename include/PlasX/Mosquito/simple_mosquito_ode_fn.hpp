@@ -8,8 +8,8 @@ namespace plasx {
 namespace mosquito {
 struct simple_mosquito_ode_fn {
   std::array<RealType, 3> operator()(
-      const RealType t, const std::array<RealType, 3>& state,
-      const RealType lambda, const SimpleMosquitoParameters& params) const;
+      RealType t, const std::array<RealType, 3>& state, RealType lambda,
+      const SimpleMosquitoParameters& params) const;
 };
 
 inline constexpr simple_mosquito_ode_fn simple_mosquito_ode{};
