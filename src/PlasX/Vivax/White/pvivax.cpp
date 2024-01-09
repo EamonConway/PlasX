@@ -4,7 +4,6 @@
 #include <iostream>
 
 #include "PlasX/random.hpp"
-#include "PlasX/udl.hpp"
 namespace plasx {
 namespace vivax {
 namespace white {
@@ -87,7 +86,7 @@ void PVivax::trackImmunityBoosts(RealType t,
   }
 }
 
-void PVivax::updateImmunity(RealType dt, RealType exp_rate_dt_parasite_immunity,
+void PVivax::updateImmunity(RealType, RealType exp_rate_dt_parasite_immunity,
                             RealType exp_rate_dt_clinical_immunity,
                             RealType exp_rate_dt_maternal_immunity,
                             RealType age,
