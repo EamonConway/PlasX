@@ -18,7 +18,8 @@ inline constexpr model_simulation_fn general_mosquito_ode_ibm_model(
 
 inline constexpr model_simulation_fn simple_mosquito_ode_ibm_model(
     vivax::white::one_step_fn{}, [](auto&&... params) {
-      return vivax::white::simple_mosquito_update(std::forward(params...));
+      return vivax::white::simple_mosquito_update(
+          std::forward<decltype(params)>(params)...);
     });
 }  // namespace pvibm
 }  // namespace plasx
