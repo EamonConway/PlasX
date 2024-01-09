@@ -1,8 +1,10 @@
 #include <algorithm>
 
+#include "PlasX/Vivax/White/parameters.hpp"
 #include "PlasX/Vivax/White/population.hpp"
 #include "PlasX/udl.hpp"
 #include "gtest/gtest.h"
+#include "nlohmann/json.hpp"
 using namespace plasx::vivax::white;
 namespace plasx {
 namespace vivax {
@@ -87,8 +89,7 @@ TEST(Population, EmplaceBackOneStepBroken) {
   auto iter = population.begin();
   EXPECT_EQ(++iter, population.end());
   auto i = 0;
-  std::for_each(population.begin(), population.end(),
-                [&](auto person) { ++i; });
+  std::for_each(population.begin(), population.end(), [&](auto) { ++i; });
   EXPECT_EQ(i, 1);
 }
 
