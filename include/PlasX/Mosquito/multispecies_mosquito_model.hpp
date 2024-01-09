@@ -1,7 +1,5 @@
 #ifndef PLASX_VIVAX_WHITE_MULTISPECIES_MOSQUITO_MODEL_HPP
 #define PLASX_VIVAX_WHITE_MULTISPECIES_MOSQUITO_MODEL_HPP
-#include <numeric>
-#include <ranges>
 #include <type_traits>
 #include <unordered_map>
 
