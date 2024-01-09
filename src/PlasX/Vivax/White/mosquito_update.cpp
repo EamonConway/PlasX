@@ -12,7 +12,10 @@ auto simple_mosquito_update(
         initial_state,
     const std::unordered_map<plasx::MosquitoSpecies,
                              mosquito::SimpleMosquitoParameters>&
-        mosquito_parameters) {
+        mosquito_parameters)
+    -> std::pair<
+        std::unordered_map<plasx::MosquitoSpecies, std::array<RealType, 3>>,
+        RealType> {
   using plasx::mosquito::mosquito_ode_model;
   using plasx::mosquito::simple_mosquito_ode;
   using plasx::mosquito::SimpleMosquitoParameters;
