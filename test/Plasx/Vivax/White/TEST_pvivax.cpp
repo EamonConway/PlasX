@@ -2,11 +2,10 @@
 #include "PlasX/udl.hpp"
 #include "gtest/gtest.h"
 using namespace plasx;
-namespace pvibm = plasx::vivax::white;
+using namespace plasx::vivax::white;
 
 TEST(pvivax, constructor) {
-  auto person = pvibm::PVivax(0.0, pvibm::Status::S, 0.0, 0.0, 0.0, 0.0, 0.0,
-                              0.0, 1.0, 0);
+  auto person = PVivax(0.0, Status::S, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0);
   EXPECT_EQ(person.getParasiteImmunity(), 0.0);
   EXPECT_EQ(person.getClinicalImmunity(), 0.0);
   EXPECT_EQ(person.getZeta(), 0.0);
@@ -19,9 +18,9 @@ TEST(pvivax, constructor) {
   auto parasite_immunity = 10.0;
   auto maternal_clinical = 50.0;
   auto maternal_parasite = 5.9;
-  auto person2 = pvibm::PVivax(
-      0.0, pvibm::Status::S, parasite_immunity, clinical_immunity,
-      maternal_parasite, maternal_clinical, test_zeta, test_rho, test_age_0, 0);
+  auto person2 = PVivax(0.0, Status::S, parasite_immunity, clinical_immunity,
+                        maternal_parasite, maternal_clinical, test_zeta,
+                        test_rho, test_age_0, 0);
   EXPECT_EQ(person2.getParasiteImmunity(),
             parasite_immunity + maternal_parasite);
   EXPECT_EQ(person2.getClinicalImmunity(),
@@ -38,9 +37,9 @@ TEST(pvivax, changeHypnozoites) {
   auto parasite_immunity = 10.0;
   auto maternal_clinical = 50.0;
   auto maternal_parasite = 5.9;
-  auto person = pvibm::PVivax(
-      0.0, pvibm::Status::S, parasite_immunity, clinical_immunity,
-      maternal_parasite, maternal_clinical, test_zeta, test_rho, test_age_0, 0);
+  auto person = PVivax(0.0, Status::S, parasite_immunity, clinical_immunity,
+                       maternal_parasite, maternal_clinical, test_zeta,
+                       test_rho, test_age_0, 0);
   EXPECT_EQ(person.getParasiteImmunity(),
             parasite_immunity + maternal_parasite);
   EXPECT_EQ(person.getClinicalImmunity(),
@@ -61,9 +60,9 @@ TEST(pvivax, Infections) {
   auto parasite_immunity = 10.0;
   auto maternal_clinical = 50.0;
   auto maternal_parasite = 5.9;
-  auto person = pvibm::PVivax(
-      0.0, pvibm::Status::S, parasite_immunity, clinical_immunity,
-      maternal_parasite, maternal_clinical, test_zeta, test_rho, test_age_0, 0);
+  auto person = PVivax(0.0, Status::S, parasite_immunity, clinical_immunity,
+                       maternal_parasite, maternal_clinical, test_zeta,
+                       test_rho, test_age_0, 0);
 
   auto return_type = person.updateInfection(1.0, 0.0);
   EXPECT_EQ(return_type, false);
@@ -72,7 +71,7 @@ TEST(pvivax, Infections) {
 
   person.queueInfection(10.0, 1.0, 1.0, 10.0);
   person.queueInfection(15.0, 0.0, 1.0, 10.0);
-  EXPECT_EQ(person.getNumHypnozoites(),std::size_t(0));
+  EXPECT_EQ(person.getNumHypnozoites(), std::size_t(0));
 
   return_type = person.updateInfection(20.0, 0.0);
   EXPECT_EQ(return_type, true);
@@ -107,6 +106,26 @@ TEST(pvivax, Infections) {
   EXPECT_EQ(person.getClinicalImmunity(), clinical_immunity + 2.0);
 }
 
+TEST(pvivax, EqualsUnary) {
+  auto test_rho = 0.2;
+  auto test_age_0 = 1.0;
+  auto test_zeta = 12.5;
+  auto clinical_immunity = 12.0;
+  auto parasite_immunity = 10.0;
+  auto maternal_clinical = 50.0;
+  auto maternal_parasite = 5.9;
+  auto person = PVivax(0.0, Status::S, parasite_immunity, clinical_immunity,
+                       maternal_parasite, maternal_clinical, test_zeta,
+                       test_rho, test_age_0, 0);
+
+  auto person2 = person;
+  EXPECT_TRUE(person == person2);
+  EXPECT_TRUE(person2 == person);
+  person2.current_ = Status::I_LM;
+  EXPECT_TRUE(person2 != person);
+  EXPECT_TRUE(person != person2);
+}
+
 TEST(pvivax, clearInfections) {
   auto test_rho = 0.2;
   auto test_age_0 = 1.0;
@@ -115,9 +134,9 @@ TEST(pvivax, clearInfections) {
   auto parasite_immunity = 10.0;
   auto maternal_clinical = 50.0;
   auto maternal_parasite = 5.9;
-  auto person = pvibm::PVivax(
-      0.0, pvibm::Status::S, parasite_immunity, clinical_immunity,
-      maternal_parasite, maternal_clinical, test_zeta, test_rho, test_age_0, 0);
+  auto person = PVivax(0.0, Status::S, parasite_immunity, clinical_immunity,
+                       maternal_parasite, maternal_clinical, test_zeta,
+                       test_rho, test_age_0, 0);
 
   auto return_type = person.updateInfection(1.0, 0.0);
   EXPECT_EQ(return_type, false);

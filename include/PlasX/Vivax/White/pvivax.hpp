@@ -138,6 +138,19 @@ class PVivax {
             current_};
   }
 
+  constexpr bool operator==(const PVivax& rhs) const {
+    return current_ == rhs.current_ &&
+           parasite_immunity_ == rhs.parasite_immunity_ &&
+           parasite_immunity_ == rhs.parasite_immunity_ &&
+           boosts_parasite_immunity_ == rhs.boosts_parasite_immunity_ &&
+           clinical_immunity_ == rhs.clinical_immunity_ &&
+           boosts_clinical_immunity_ == rhs.boosts_clinical_immunity_ &&
+           maternal_parasite_immunity_ == rhs.maternal_parasite_immunity_ &&
+           maternal_clinical_immunity_ == rhs.maternal_clinical_immunity_ &&
+           time_refractory_period_over_ == rhs.time_refractory_period_over_ &&
+           zeta_ == rhs.zeta_ && omega_ == rhs.omega_;
+  }
+
  private:
   /**
    * @brief
