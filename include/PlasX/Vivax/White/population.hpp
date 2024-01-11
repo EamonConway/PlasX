@@ -71,12 +71,9 @@ class Population {
   void set_maternal_immunity(
       std::vector<MaternalImmunity>&& maternal_immunity) {
     maternal_immunity_levels_ = std::move(maternal_immunity);
-    auto no_birthing_people_edge_case = maternal_immunity_levels_.empty();
-    if (no_birthing_people_edge_case) {
-      maternal_immunity_levels_.emplace_back(0.0, 0.0);
-    }
   };
 
+  // Do we need to provide some lifetime guarantee here for the best practice?
   constexpr const auto& get_maternal_immunity() {
     if (maternal_immunity_levels_.empty()) {
       return default_maternal_immunity_levels_;
