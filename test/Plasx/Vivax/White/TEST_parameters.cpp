@@ -1,7 +1,6 @@
 #include "PlasX/Vivax/White/parameters.hpp"
+#include "PlasX/parse_json.hpp"
 #include "gtest/gtest.h"
-#include "nlohmann/json.hpp"
-
 using namespace plasx::vivax::white;
 // Json string literal for testing purposes.
 namespace {
@@ -52,7 +51,7 @@ constexpr auto json_file = R"json({
 }
 
 TEST(Parameters, JsonConstructor) {
-  auto params_json = nlohmann::json::parse(json_file);
+  auto params_json = plasx::parse_json(json_file).value();
   Parameters params(params_json);
   EXPECT_EQ(params.num_people, params_json.at("num_people"));
   EXPECT_EQ(params.delay, params_json.at("delay"));
@@ -109,7 +108,7 @@ TEST(Parameters, JsonConstructor) {
 }
 
 TEST(Parameters, ValueConstructor) {
-  auto params_json = nlohmann::json::parse(json_file);
+  auto params_json = plasx::parse_json(json_file).value();
   auto params = Parameters(
       params_json.at("num_people").get<int>(),
       params_json.at("delay").get<double>(),
