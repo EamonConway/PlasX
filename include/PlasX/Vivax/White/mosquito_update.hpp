@@ -6,16 +6,15 @@
 namespace plasx {
 namespace vivax {
 namespace white {
-auto simple_mosquito_update(
+std::pair<std::unordered_map<plasx::MosquitoSpecies, std::array<RealType, 3>>,
+          RealType>
+simple_mosquito_update(
     double dt, double t0, double lambda,
     const std::unordered_map<plasx::MosquitoSpecies, std::array<RealType, 3>>&
         initial_state,
     const std::unordered_map<plasx::MosquitoSpecies,
                              mosquito::SimpleMosquitoParameters>&
-        mosquito_parameters)
-    -> std::pair<
-        std::unordered_map<plasx::MosquitoSpecies, std::array<RealType, 3>>,
-        RealType>;
+        mosquito_parameters);
 }  // namespace white
 }  // namespace vivax
 }  // namespace plasx
