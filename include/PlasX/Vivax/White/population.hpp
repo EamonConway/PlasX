@@ -22,11 +22,7 @@ class Population {
         : parasite_immunity(parasite), clinical_immunity(clinical){};
   };
 
-  Population(std::vector<PersonType>&& population,
-             std::vector<MaternalImmunity>&& default_immunity_level);
-  Population(std::vector<PersonType>&& population);
   Population();
-  Population(std::vector<MaternalImmunity>&& default_immunity_level);
 
   [[nodiscard("iterator cannot be discarded")]] constexpr iterator begin() {
     return data_.begin();
@@ -82,10 +78,10 @@ class Population {
   };
 
  private:
+  RealType population_total_omega_zeta_;
   std::vector<Individual<PVivax>> data_;
   std::vector<MaternalImmunity> maternal_immunity_levels_;
   const std::vector<MaternalImmunity> default_maternal_immunity_levels_;
-  RealType population_total_omega_zeta_;
 };
 }  // namespace white
 }  // namespace vivax

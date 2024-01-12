@@ -5,10 +5,8 @@
 #include "PlasX/udl.hpp"
 #include "gtest/gtest.h"
 #include "nlohmann/json.hpp"
+using namespace plasx;
 using namespace plasx::vivax::white;
-namespace plasx {
-namespace vivax {
-namespace white {
 
 // Json string literal for testing purposes.
 namespace {
@@ -72,32 +70,42 @@ TEST(Population, EmplaceBack) {
   EXPECT_EQ(pop.size(), std::size_t(1));
   EXPECT_EQ(pop.total_omega_zeta(), 0.8);
   EXPECT_EQ(pop.get_maternal_immunity().size(), std::size_t(1));
-
-  auto iter = pop.begin();
-  EXPECT_EQ(++iter, pop.end());
 }
 
-TEST(Population, EmplaceBackOneStepBroken) {
+TEST(Population, EmplaceBackRepeat) {
+  auto pop = Population();
+  while (pop.size() != 100) {
+    pop.emplace_back(1000.0, 10000.0, 0.0, Status::S, 0.0, 0.0, 0.0, 0.0, 1.0,
+                     0.0, 10.0, 0);
+  }
+  EXPECT_EQ(pop.size(), std::size_t(100));
+  EXPECT_EQ(pop.total_omega_zeta(), 100.0);
+  EXPECT_EQ(pop.get_maternal_immunity().size(), std::size_t(1));
+}
+
+TEST(Population, Iter) {
   auto params_json = nlohmann::json::parse(json_file);
   Parameters params(params_json);
   auto population = Population();
   population.emplace_back(params.min_birth_age, params.max_birth_age, 103.0_yrs,
                           Status::S, 0.0, 0.0, 0.0, 0.0, 1.0);
-  EXPECT_EQ(population.size(), std::size_t(1));
-  EXPECT_EQ(population.get_maternal_immunity().size(), std::size_t(1));
+  EXPECT_EQ(++population.begin(), population.end());
+}
 
-  auto iter = population.begin();
-  EXPECT_EQ(++iter, population.end());
-  auto i = 0;
-  std::for_each(population.begin(), population.end(), [&](auto) { ++i; });
-  EXPECT_EQ(i, 1);
+TEST(Population, ConstIter) {
+  auto params_json = nlohmann::json::parse(json_file);
+  Parameters params(params_json);
+  auto population = Population();
+  population.emplace_back(params.min_birth_age, params.max_birth_age, 103.0_yrs,
+                          Status::S, 0.0, 0.0, 0.0, 0.0, 1.0);
+  const auto const_population = population;
+  EXPECT_TRUE(std::is_const<std::remove_reference<
+                  decltype(*const_population.end())>::type>::value);
+  EXPECT_TRUE(std::is_const<std::remove_reference<
+                  decltype(*const_population.begin())>::type>::value);
 }
 
 TEST(Population, AssignmentOperator) {
-  // There appears to be a problemw ith assigning an individual to a person.
-  // Current bug is giving a bad access error in lldb. That indicates that there
-  // is a problem with the memory. I think it triggers in the individual_dies
-  // branch.
   auto params_json = nlohmann::json::parse(json_file);
   Parameters params(params_json);
   auto population = Population();
@@ -105,23 +113,51 @@ TEST(Population, AssignmentOperator) {
                           Status::S, 0.0, 0.0, 0.0, 0.0, 1.0);
   EXPECT_EQ(population.size(), std::size_t(1));
   EXPECT_EQ(population.get_maternal_immunity().size(), std::size_t(1));
-
   auto iter = population.begin();
-  auto parasite_immunity = 1.0, age_0 = 2820.0, zeta = 1.0, rho = 0.2,
-       clinical_immunity = 1.0;
-  *iter = Population::PersonType(
+  const auto parasite_immunity = 1.0, age_0 = 2820.0, zeta = 1.0, rho = 0.2,
+             clinical_immunity = 1.0;
+  const auto individual = Population::PersonType(
       0.0, Status::S, params.proportion_maternal_immunity * parasite_immunity,
       params.proportion_maternal_immunity * clinical_immunity, zeta, rho,
       age_0);
+  *iter = individual;
+  EXPECT_EQ(*iter, individual);
+
   std::for_each(population.begin(), population.end(),
-                [&](Population::PersonType& person) {
-                  person = Population::PersonType(
-                      0.0, Status::S,
-                      params.proportion_maternal_immunity * parasite_immunity,
-                      params.proportion_maternal_immunity * clinical_immunity,
-                      zeta, rho, age_0);
-                });
+                [&](Population::PersonType& person) { person = individual; });
+
+  std::for_each(
+      population.begin(), population.end(),
+      [&](Population::PersonType& person) { EXPECT_EQ(person, individual); });
 }
-}  // namespace white
-}  // namespace vivax
-}  // namespace plasx
+
+TEST(Population, MaternalImmunityCheck) {
+  auto pop = Population();
+  pop.emplace_back(10.0, 10000.0, 11.0, Status::S, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
+                   10.0, 0);
+  EXPECT_EQ(pop.get_maternal_immunity().size(), std::size_t(1));
+  pop.emplace_back(12.0, 10000.0, 11.0, Status::S, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
+                   10.0, 0);
+  EXPECT_EQ(pop.get_maternal_immunity().size(), std::size_t(1));
+  pop.emplace_back(12.0, 10000.0, 21.0, Status::S, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
+                   10.0, 0);
+  EXPECT_EQ(pop.get_maternal_immunity().size(), std::size_t(2));
+  pop.emplace_back(12.0, 20.0, 21.0, Status::S, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
+                   10.0, 0);
+  EXPECT_EQ(pop.get_maternal_immunity().size(), std::size_t(2));
+  while (pop.size() != 100) {
+    pop.emplace_back(1000.0, 10000.0, 1001.0, Status::S, 0.0, 0.0, 0.0, 0.0,
+                     1.0, 0.0, 10.0, 0);
+  }
+  EXPECT_EQ(pop.size(), std::size_t(100));
+  EXPECT_EQ(pop.total_omega_zeta(), 100.0);
+  EXPECT_EQ(pop.get_maternal_immunity().size(), std::size_t(98));
+}
+
+TEST(Population, PersonAndPopulationCheck) {
+  auto pop = Population();
+  pop.emplace_back(10.0, 10000.0, 11.0, Status::S, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0,
+                   10.0, 0);
+  auto& state = pop.begin()->status_;
+  EXPECT_EQ(state.getOmega() * state.getZeta(), pop.total_omega_zeta());
+}
