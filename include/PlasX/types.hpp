@@ -1,6 +1,5 @@
 #ifndef PLASX_TYPES_HPP
 #define PLASX_TYPES_HPP
-#include <cstdint>
 #include <string>
 /**
  * @file types.hpp
