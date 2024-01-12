@@ -45,6 +45,10 @@ class Individual {
 
   RealType age_;
   DiseaseStatus status_;
+
+  constexpr bool operator==(const Individual<DiseaseStatus>& rhs) const {
+    return age_ == rhs.age_ && status_ == rhs.status_;
+  }
 };
 }  // namespace plasx
 #endif
