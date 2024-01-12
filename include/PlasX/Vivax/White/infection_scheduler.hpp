@@ -10,12 +10,15 @@ namespace white {
 class InfectionScheduler {
  public:
   InfectionScheduler(){};
+
   class Infection {
    public:
     Infection(RealType t, SizeType new_hypnozoites)
         : t_(t), hypnozoites_(new_hypnozoites){};
 
-    friend bool operator<(const Infection& lhs, const Infection& rhs);
+    constexpr bool operator<(const Infection& rhs) const noexcept {
+      return t_ < rhs.t_;
+    }
 
     RealType getInfectionTime() const noexcept { return t_; }
     SizeType getNumHypnozoites() const noexcept { return hypnozoites_; }
@@ -25,9 +28,6 @@ class InfectionScheduler {
     RealType t_;
     SizeType hypnozoites_;
   };
-
-  using underlying_type = std::priority_queue<Infection, std::vector<Infection>,
-                                             std::greater<Infection>>;
 
   void emplace(const RealType& t, const SizeType& hypnozoites) {
     q_.emplace(t, hypnozoites);
@@ -40,17 +40,14 @@ class InfectionScheduler {
 
  protected:
  private:
-  underlying_type q_;
+  struct CompareInfections {
+    bool operator()(const Infection& lhs, const Infection& rhs) const {
+      return rhs < lhs;
+    }
+  };
+  std::priority_queue<Infection, std::vector<Infection>, CompareInfections> q_;
 };
 
-inline bool operator<(const InfectionScheduler::Infection& lhs,
-                      const InfectionScheduler::Infection& rhs) {
-  return lhs.t_ < rhs.t_;
-}
-inline bool operator>(const InfectionScheduler::Infection& lhs,
-                      const InfectionScheduler::Infection& rhs) {
-  return rhs < lhs;
-}
 }  // namespace white
 }  // namespace vivax
 }  // namespace plasx
