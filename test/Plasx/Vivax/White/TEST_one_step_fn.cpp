@@ -1,5 +1,3 @@
-#include <fstream>
-
 #include "PlasX/Vivax/White/one_step_fn.hpp"
 #include "PlasX/Vivax/White/population.hpp"
 #include "PlasX/random.hpp"

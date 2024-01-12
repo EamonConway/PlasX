@@ -6,7 +6,7 @@ namespace vivax {
 namespace white {
 namespace {
 // Json string literal for testing purposes.
-constexpr auto json_file = R"({
+constexpr auto json_file = R"json({
 "num_people": 2000,
 "eir":1.0,
 "time_step":1.0,
@@ -49,7 +49,7 @@ constexpr auto json_file = R"({
 "biting_rate_log_mean": 0.0,
 "biting_rate_log_sd": 1.10905365064,
 "max_age": 36500.0
-})";
+})json";
 }  // namespace
 
 class IndividualOneStepTests : public ::testing::Test {
