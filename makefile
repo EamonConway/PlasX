@@ -1,21 +1,21 @@
 # Define flags for compilation.
-COMPILER = /usr/local/Cellar/gcc/13.1.0/bin/g++-13
-COMPILER = g++
+COMPILER = /usr/local/Cellar/llvm/17.0.6/bin/clang++
+# COMPILER = g++
 # CXX = $(COMPILER)  -Wall -Wpedantic -Werror  -Wextra -Wconversion -fPIC -g -O3 -std=c++2b
 CXX = $(COMPILER)  -Wall -Wpedantic -Werror  -Wextra -fPIC -g -O3 -std=c++2b
 INCLUDE = include
 # NLOHMANN = ../json/single_include/
-GTEST = /usr/local/Cellar/googletest/1.10.0/include
-NLOHMANN = ../
-ODEPP = ../odeplusplus/include
-PYBIND = ../pybind11/include
+GTEST = extern/googletest/googletest/include
+NLOHMANN = extern/json/include
+ODEPP = extern/odeplusplus/include
+PYBIND = extern/pybind11/include
 CPPFLAGS = -I$(INCLUDE) -I$(NLOHMANN) -I$(ODEPP)
 CFLAGS =
 PY_OBJ = pybuild
 OBJ = build
 SRC = src
 TEST = test
-PY_API = pysrc
+PY_API = python/src
 
 SOURCES := $(shell find $(SRC) -name "*.cpp")
 SOURCES := $(shell find $(SRC) -type f -name '*.cpp' -not -path '$(SRC)/PlasX/Falciparum/*')
