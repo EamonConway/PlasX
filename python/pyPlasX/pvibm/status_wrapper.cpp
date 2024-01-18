@@ -2,8 +2,8 @@
 #include "PlasX/types.hpp"
 #include "pybind11/pybind11.h"
 
-namespace py = pybind11;
-void add_status_module(py::module_& module) {
+PYBIND11_MODULE(status_, module) {
+  namespace py = pybind11;
   using namespace plasx::vivax::white;
   using plasx::RealType;
   py::enum_<Status>(module, "Status")

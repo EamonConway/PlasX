@@ -1,9 +1,9 @@
 #include "PlasX/Vivax/White/parameters.hpp"
 #include "pybind11/pybind11.h"
-namespace py = pybind11;
-using namespace plasx::vivax::white;
-void add_pvibm_parameter_module(pybind11::module_& module) {
-  // void add_pvibm_parameter_module(py::module_& module) {
+
+PYBIND11_MODULE(parameters_, module) {
+  namespace py = pybind11;
+  using namespace plasx::vivax::white;
   py::class_<Parameters>(module, "HumanParameters")
       .def(py::init<int, double, double, double, double, double, double, double,
                     double, double, double, double, double, double, double,

@@ -1,13 +1,13 @@
 #include "PlasX/Vivax/White/population.hpp"
 #include "pybind11/pybind11.h"
 
-namespace py = pybind11;
-using plasx::RealType;
-using plasx::SizeType;
-using plasx::vivax::white::Population;
-using plasx::vivax::white::Status;
+PYBIND11_MODULE(population_, module) {
+  namespace py = pybind11;
+  using plasx::RealType;
+  using plasx::SizeType;
+  using plasx::vivax::white::Population;
+  using plasx::vivax::white::Status;
 
-void add_pvibm_simple_module(py::module_& module) {
   py::class_<Population>(module, "Population")
       .def(py::init<>())
       .def(
