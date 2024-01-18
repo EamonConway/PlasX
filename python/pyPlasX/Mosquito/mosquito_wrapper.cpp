@@ -7,13 +7,12 @@
 #include "pybind11/pybind11.h"
 #include "pybind11/stl.h"
 
+namespace {
 using namespace plasx;
 using plasx::mosquito::mosquito_ode_model;
 using plasx::mosquito::simple_mosquito_ode;
 using plasx::mosquito::SimpleMosquitoParameters;
-namespace py = pybind11;
 
-namespace {
 auto simple_ode_mosquito_model(const double lambda, const double dt,
                                const double t0, const double t1,
                                const std::array<RealType, 3>& state,
@@ -55,7 +54,13 @@ auto multispecies_simple_ode_mosquito_model(
 }
 }  // namespace
 
-void add_mosquito_module(py::module_& module) {
+PYBIND11_MODULE(mosquito_, module) {
+  using namespace plasx;
+  using plasx::mosquito::mosquito_ode_model;
+  using plasx::mosquito::simple_mosquito_ode;
+  using plasx::mosquito::SimpleMosquitoParameters;
+  namespace py = pybind11;
+
   py::class_<SimpleMosquitoParameters>(module, "SimpleMosquitoParameters")
       .def(py::init<RealType, RealType, RealType, RealType>(),
            py::arg("death_rate"), py::arg("gamma"), py::arg("zeta"),
