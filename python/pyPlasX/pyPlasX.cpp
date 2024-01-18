@@ -1,11 +1,5 @@
 #include <pybind11/pybind11.h>
 namespace py = pybind11;
-void add_status_module(py::module_& module);
-void add_mosquito_module(py::module_& m);
-void add_equilibrium_module(py::module_& m);
-void add_pvibm_parameter_module(py::module_& m);
-void add_pvibm_simple_module(py::module_& m);
-void add_pvibm_model_module(py::module_& module);
 
 PYBIND11_MODULE(pyPlasX, px) {
   px.doc() =
@@ -22,11 +16,4 @@ PYBIND11_MODULE(pyPlasX, px) {
       px.def_submodule("mosquito", R"py(Mosquito module for use within PlasX.
 
   Functions and parameters that are used to model the mosquito population.)py");
-
-  add_mosquito_module(mosquito);
-  add_status_module(pvibm);
-  add_pvibm_parameter_module(pvibm);
-  add_equilibrium_module(pvibm);
-  add_pvibm_simple_module(pvibm);
-  add_pvibm_model_module(pvibm);
 }

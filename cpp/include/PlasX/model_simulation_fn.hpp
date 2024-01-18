@@ -67,6 +67,7 @@ struct model_simulation_fn {
       time_output_store.emplace_back(t);
       human_state_output.emplace_back(human_output.first);
       mosquito_state_store.emplace_back(mosquito_output.first);
+      t += dt;
     }
     return std::make_tuple(time_output_store, human_state_output,
                            mosquito_state_store);
