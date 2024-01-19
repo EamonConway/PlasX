@@ -33,7 +33,7 @@ python-libs: tests objects $(PYBIND_SO_FILES)
 
 tests: objects test_objects
 	@mkdir -p bin
-	$(CXX) $(CPPFLAGS) -o bin/TEST_runner $(TEST_OBJECTS) $(OBJECTS)  -lgtest -pthread
+	$(CXX) $(CPPFLAGS) -L/usr/local/lib -o bin/TEST_runner $(TEST_OBJECTS) $(OBJECTS)  -lgtest -pthread
 
 objects: $(OBJECTS)
 test_objects: $(TEST_OBJECTS)
