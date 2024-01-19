@@ -1,6 +1,6 @@
 # Binary files.
 bin
-
+*__pycache__
 # Clangd Files.
 compile_commands.json
 
