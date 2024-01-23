@@ -1,6 +1,6 @@
-from pybin.pyPlasX.mosquito import SimpleMosquitoParameters as Parameters
-from pybin.pyPlasX.mosquito import mosquito_model as mosquito_model
-from pybin.pyPlasX.mosquito import ms_mosquito_model as ms_mosquito_model
+from pyPlasX.mosquito import SimpleMosquitoParameters as Parameters
+from pyPlasX.mosquito import mosquito_model as mosquito_model
+from pyPlasX.mosquito import ms_mosquito_model as ms_mosquito_model
 
 # Create the state vector.
 state = {"species_one": [0.99, 0.01, 0.0],

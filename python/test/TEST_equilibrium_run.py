@@ -1,5 +1,5 @@
-from pybin.pyPlasX.pvibm import HumanParameters as Parameters
-from pybin.pyPlasX.pvibm import equilibrium
+from pyPlasX.pvibm import HumanParameters as Parameters
+from pyPlasX.pvibm import equilibrium
 import matplotlib.pyplot as plt
 
 parameters = Parameters(num_people=10000,

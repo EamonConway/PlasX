@@ -1,5 +1,5 @@
-from pybin.pyPlasX.mosquito import SimpleMosquitoParams as Parameters
-from pybin.pyPlasX.mosquito import mosquito_model
+from pyPlasX.mosquito import SimpleMosquitoParams as Parameters
+from pyPlasX.mosquito import mosquito_model
 import matplotlib.pyplot as plt
 import numpy as np
 

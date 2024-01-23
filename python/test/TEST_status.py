@@ -1,2 +1,2 @@
-from pybin.pyPlasX.pvibm import Status
+from pyPlasX.pvibm import Status
 state = Status.S

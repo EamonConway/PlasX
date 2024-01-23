@@ -1,8 +1,8 @@
-from pybin.pyPlasX.pvibm import Population as Population
-from pybin.pyPlasX.pvibm import HumanParameters as Parameters
-from pybin.pyPlasX.pvibm import run as run
-from pybin.pyPlasX.mosquito import SimpleMosquitoParameters as MosquitoParameters
-from pybin.pyPlasX.pvibm import Status as Status
+from pyPlasX.pvibm import Population as Population
+from pyPlasX.pvibm import HumanParameters as Parameters
+from pyPlasX.pvibm import run as run
+from pyPlasX.mosquito import SimpleMosquitoParameters as MosquitoParameters
+from pyPlasX.pvibm import Status as Status
 
 # Initialise all variables required for the simulation
 population_parameters = Parameters(num_people=10000,
