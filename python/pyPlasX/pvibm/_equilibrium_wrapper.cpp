@@ -2,7 +2,7 @@
 #include "pybind11/pybind11.h"
 #include "pybind11/stl.h"
 
-PYBIND11_MODULE(equilibrium_, module) {
+PYBIND11_MODULE(_equilibrium, module) {
   namespace py = pybind11;
   using plasx::RealType;
   using plasx::vivax::white::Parameters;

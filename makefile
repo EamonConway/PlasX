@@ -25,7 +25,7 @@ PYTHON_H := $(shell python3-config --includes)
 PYTHON_EXTENSION := $(shell python3-config --extension-suffix)
 
 PYBIND_WRAPPERS := $(shell find $(PY_API) -name "*_wrapper.cpp")
-PYBIND_SO_FILES := $(patsubst %_wrapper.cpp, %_$(PYTHON_EXTENSION), $(PYBIND_WRAPPERS))
+PYBIND_SO_FILES := $(patsubst %_wrapper.cpp, %$(PYTHON_EXTENSION), $(PYBIND_WRAPPERS))
 PYBIND_OBJ := $(patsubst $(PY_API)/%.cpp, $(PY_OBJ)/%.o, $(PYBIND_WRAPPERS))
 PYBIND_LIBS:= $(patsubst $(PY_API)/%_wrapper.cpp, $(PY_API)/%$(PYTHON_EXTENSION), $(PYBIND_SRC))
 
@@ -59,5 +59,5 @@ $(OBJ)/%.o: $(TEST)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) -c $(CPPFLAGS) -I$(GTEST) $< -o $@
 
-$(PY_API)/%_$(PYTHON_EXTENSION): $(PY_API)/%_wrapper.o objects
+$(PY_API)/%$(PYTHON_EXTENSION): $(PY_API)/%_wrapper.o objects
 	$(CXX) -shared -undefined dynamic_lookup $(PYTHON_H) -I$(PYBIND) -o $@ $< $(OBJECTS)
