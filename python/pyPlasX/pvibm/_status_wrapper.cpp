@@ -2,7 +2,7 @@
 #include "PlasX/types.hpp"
 #include "pybind11/pybind11.h"
 
-PYBIND11_MODULE(status_, module) {
+PYBIND11_MODULE(_status, module) {
   namespace py = pybind11;
   using namespace plasx::vivax::white;
   using plasx::RealType;

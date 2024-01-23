@@ -1,7 +1,7 @@
 #include "PlasX/Vivax/White/population.hpp"
 #include "pybind11/pybind11.h"
 
-PYBIND11_MODULE(population_, module) {
+PYBIND11_MODULE(_population, module) {
   namespace py = pybind11;
   using plasx::RealType;
   using plasx::SizeType;
@@ -38,4 +38,5 @@ PYBIND11_MODULE(population_, module) {
         s += "]";
         return s;
       });
+  module.attr("__name__") = "desired_module_name";
 }

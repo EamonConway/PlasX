@@ -7,7 +7,7 @@
 // be given appropriate types in the python api.
 #include "pybind11/stl.h"
 
-PYBIND11_MODULE(model_, module) {
+PYBIND11_MODULE(_model, module) {
   namespace py = pybind11;
   using plasx::RealType;
   using plasx::SizeType;

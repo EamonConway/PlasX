@@ -2,14 +2,14 @@
 #include "pybind11/pybind11.h"
 #include "pybind11/stl.h"
 
-PYBIND11_MODULE(equilibrium_, module) {
+PYBIND11_MODULE(_equilibrium, module) {
   namespace py = pybind11;
   using plasx::RealType;
   using plasx::vivax::white::Parameters;
   using plasx::vivax::white::Population;
   using plasx::vivax::white::Status;
   module.def(
-      "run_equilibrium",
+      "run",
       [](double t0, double t1, double dt, double eir, Population& population,
          const Parameters& params) {
         // Run the simulation.
@@ -25,7 +25,8 @@ PYBIND11_MODULE(equilibrium_, module) {
       },
       py::arg("start_time"), py::arg("end_time"), py::arg("time_step"),
       py::arg("eir"), py::arg("Population"), py::arg("PopulationParameters"),
-      R"python(Run the equilibrium solution
-        of PVIBM with constant entomological innoculation rate
-        (eir).)python");
+      R"python(
+    Run the equilibrium solution of PVIBM with constant entomological
+    innoculation rate (EIR).
+    )python");
 };
