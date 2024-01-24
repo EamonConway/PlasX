@@ -6,6 +6,6 @@ individual can occupy are also exposed through the status class.
 
 Typical usage example:
 """
-import status_ as status
-import parameters_ as parameters
-import equilibrium_ as equilibrium
+from ._status import Status
+from ._population import Population
+from ._parameters import HumanParameters

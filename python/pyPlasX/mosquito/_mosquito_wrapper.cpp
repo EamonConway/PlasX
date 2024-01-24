@@ -54,7 +54,7 @@ auto multispecies_simple_ode_mosquito_model(
 }
 }  // namespace
 
-PYBIND11_MODULE(mosquito_, module) {
+PYBIND11_MODULE(_mosquito, module) {
   using namespace plasx;
   using plasx::mosquito::mosquito_ode_model;
   using plasx::mosquito::simple_mosquito_ode;
