@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=42", "pybind11>=2.10.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyPlasX"
+version = "2020.0.0"
+requires-python = ">=3.8"
+authors = [{ name = "Eamon Conway", email = "conway.e@wehi.edu.au" }]
+maintainers = [{ name = "Eamon Conway", email = "conway.e@wehi.edu.au" }]
+description = "A package for malaria simulations"
+keywords = ["malaria"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python",
+]
+
+[project.urls]
+Homepage = "https://example.com"
+Documentation = "https://readthedocs.org"
+Repository = "https://github.com/me/spam.git"
+"Bug Tracker" = "https://github.com/me/spam/issues"
+Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
