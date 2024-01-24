@@ -1,11 +1,8 @@
-from pybin.pyPlasX.pvibm import Population as Population
-from pybin.pyPlasX.pvibm import HumanParameters as Parameters
-from pybin.pyPlasX.pvibm import run as run
-from pybin.pyPlasX.mosquito import SimpleMosquitoParameters as MosquitoParameters
-from pybin.pyPlasX.pvibm import Status as Status
+import pyPlasX
+from pyPlasX import pvibm
 
 # Initialise all variables required for the simulation
-population_parameters = Parameters(num_people=10000,
+population_parameters = pvibm.HumanParameters(num_people=10000,
                                    delay=10.0,
                                    maternal_min_age=6570.0,
                                    maternal_max_age=14600.0,
@@ -51,18 +48,18 @@ mosquito_state = {"species_one": [0.99, 0.01, 0.0],
                   "species_two": [0.99, 0.01, 0.0],
                   "species_three": [0.99, 0.01, 0.0]}
 mosquito_parameters = {
-    "species_one": MosquitoParameters(
+    "species_one": pyPlasX.SimpleMosquitoParameters(
         death_rate=1.0, gamma=12.0, zeta=1.0, phi=1.0),
-    "species_two": MosquitoParameters(
+    "species_two": pyPlasX.SimpleMosquitoParameters(
         death_rate=1.23401, gamma=1.120, zeta=1.110, phi=1.10),
-    "species_three": MosquitoParameters(
+    "species_three": pyPlasX.SimpleMosquitoParameters(
         death_rate=1.23401, gamma=1.120, zeta=1.110, phi=1.10)
 }
 
 # Create all individuals for the simulation
-population = Population()
+population = pvibm.Population()
 population.CreateIndividual(
-    10.0, 20.0, 12.0, Status.S, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 10.0, 1)
+    10.0, 20.0, 12.0, pvibm.Status.S, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 10.0, 1)
 # Run the simulation for the model
-tout, hout, mout = run(0.125, 0.0, 1.0, 0.0, population,
+tout, hout, mout = pvibm.run(0.125, 0.0, 1.0, 0.0, population,
                        population_parameters, mosquito_state, mosquito_parameters)

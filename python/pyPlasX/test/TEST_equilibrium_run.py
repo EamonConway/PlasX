@@ -1,8 +1,7 @@
-from pybin.pyPlasX.pvibm import HumanParameters as Parameters
-from pybin.pyPlasX.pvibm import equilibrium
+from pyPlasX import pvibm
 import matplotlib.pyplot as plt
 
-parameters = Parameters(num_people=10000,
+parameters = pvibm.HumanParameters(num_people=10000,
                         delay=10.0,
                         maternal_min_age=6570.0,
                         maternal_max_age=14600.0,
@@ -44,9 +43,9 @@ parameters = Parameters(num_people=10000,
                         max_age=29200.0
                         )
 
-t, y = equilibrium(
-    0.0, 20.0*365.0, 1.0, 2.0*parameters.num_people, parameters)
+# t, y = pvibm.run_equilibrium(
+#     0.0, 20.0*365.0, 1.0, 2.0*parameters.num_people, parameters)
 
-for status, prevalence in y.items():
-    plt.plot(t, prevalence, label=f"Status {status}")
-plt.show()
+# for status, prevalence in y.items():
+#     plt.plot(t, prevalence, label=f"Status {status}")
+# plt.show()

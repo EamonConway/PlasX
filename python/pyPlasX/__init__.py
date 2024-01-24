@@ -7,3 +7,4 @@ Typical usage example:
   foo = ClassFoo()
   bar = foo.FunctionBar()
 """
+from pyPlasX._mosquito import SimpleMosquitoParameters, mosquito_model, ms_mosquito_model

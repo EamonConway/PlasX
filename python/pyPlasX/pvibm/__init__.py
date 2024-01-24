@@ -6,8 +6,8 @@ individual can occupy are also exposed through the status class.
 
 Typical usage example:
 """
-from pyPlasX.pvibm import _equilibrium as equilibrium
-from pyPlasX.pvibm import _model as model
-from pyPlasX.pvibm import _parameters as parameters
-from pyPlasX.pvibm import _population as population
-from pyPlasX.pvibm import _status as status
+from pyPlasX.pvibm._equilibrium import run_equilibrium
+from pyPlasX.pvibm._model import run
+from pyPlasX.pvibm._parameters import HumanParameters
+from pyPlasX.pvibm._population import Population
+from pyPlasX.pvibm._status import Status

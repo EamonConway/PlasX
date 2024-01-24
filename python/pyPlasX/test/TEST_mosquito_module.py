@@ -1,3 +1,3 @@
-from pybin import pyPlasX as State
+import pyPlasX
 
-a = State([1, 2, 3])
+# a = pyPlasX([1, 2, 3])
