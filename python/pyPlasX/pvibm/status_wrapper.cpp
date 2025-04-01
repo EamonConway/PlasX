@@ -1,5 +1,6 @@
 #include "PlasX/Vivax/White/status.hpp"
 #include "PlasX/types.hpp"
+#include "pybind11/detail/common.h"
 #include "pybind11/pybind11.h"
 
 PYBIND11_MODULE(_status, module) {

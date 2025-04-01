@@ -1,4 +1,5 @@
 #include "PlasX/Vivax/White/pvibm.hpp"
+#include "PlasX/Vivax/White/status.hpp"
 #include "pybind11/pybind11.h"
 #include "pybind11/stl.h"
 
@@ -25,8 +26,7 @@ PYBIND11_MODULE(_equilibrium, module) {
       },
       py::arg("start_time"), py::arg("end_time"), py::arg("time_step"),
       py::arg("eir"), py::arg("Population"), py::arg("PopulationParameters"),
-      R"python(
-    Run the equilibrium solution of PVIBM with constant entomological
-    innoculation rate (EIR).
-    )python");
+      R"python(Run the equilibrium solution of PVIBM with constant entomological
+     innoculation rate (EIR).
+      )python");
 };

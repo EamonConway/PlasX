@@ -30,13 +30,15 @@ PYBIND11_MODULE(_population, module) {
           R"py(
             Create an individual and place them within your
                 population.The construction is done in place.)py")
-      .def("__repr__", [](const Population& population) {
-        std::string s = "[";
-        for (const auto& person : population) {
-          s += std::to_string(person.age_) + ", ";
-        }
-        s += "]";
-        return s;
-      });
-  module.attr("__name__") = "desired_module_name";
+      .def(
+          "size", [](const Population& self) { return self.size(); },
+          "Number of people in population")
+      .def("__repr__",
+           []([[maybe_unused]] const Population& population) {
+             return "PVivax Population";
+           })
+      .def(
+          "__getitem__",
+          []([[maybe_unused]] const Population& self, int i) { return i; },
+          "Return individual.");
 }
